@@ -1,0 +1,246 @@
+---
+layout: none
+title: Membership Hub | Poway Symphony Orchestra
+permalink: /powayorchestra/membership/
+---
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ '/assets/css/capstones/powayorchestra/home-page.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/capstones/powayorchestra/membership-portal.css' | relative_url }}">
+</head>
+
+<body>
+  <div class="pso-foundation pso-membership-page">
+    {% include powayorchestra/sections/topbar.html %}
+
+    <main class="pso-membership-shell">
+      <section class="pso-membership-hero">
+        <p class="pso-membership-eyebrow">Poway Symphony Orchestra</p>
+        <h1>Apply to Join the Orchestra</h1>
+        <p class="pso-membership-subtitle">
+          Public visitors can browse the site, buy tickets, and enjoy games. Orchestra members get their own profile tools, member settings, and direct admin communication.
+        </p>
+      </section>
+
+      <section class="pso-membership-grid">
+        <article class="pso-membership-card">
+          <h2>Roles on the Site</h2>
+          <div class="pso-membership-role-list">
+            <div class="pso-membership-role-item">
+              <strong>User / Visitor</strong>
+              <p>Can browse the site, buy tickets, watch media, and play games.</p>
+            </div>
+            <div class="pso-membership-role-item">
+              <strong>Applicant</strong>
+              <p>Signed-in user who has submitted an orchestra interview or audition request.</p>
+            </div>
+            <div class="pso-membership-role-item">
+              <strong>Member</strong>
+              <p>Approved orchestra member with profile customization and member tools.</p>
+            </div>
+            <div class="pso-membership-role-item">
+              <strong>Admin</strong>
+              <p>Reviews requests, approves members, and chats with applicants.</p>
+            </div>
+          </div>
+
+          <div class="pso-membership-status-box">
+            <h3>Current Access</h3>
+            <p id="pso-membership-current-user">Checking sign-in status...</p>
+            <p id="pso-membership-current-role">Loading role...</p>
+            <a class="pso-button pso-button-secondary" href="{{ '/powayorchestra/signin/' | relative_url }}">Go to Sign In</a>
+          </div>
+        </article>
+
+        <article class="pso-membership-card">
+          <h2>Interview / Audition Request</h2>
+          <p class="pso-membership-copy">
+            Sign in first, then submit your request here. You can upload a video file and also include a YouTube or Vimeo link.
+          </p>
+
+          <form id="pso-membership-form" class="pso-membership-form">
+            <div class="pso-membership-field-grid">
+              <div class="pso-field">
+                <label for="pso-apply-name">Full Name</label>
+                <input id="pso-apply-name" type="text" placeholder="Your full name" required>
+              </div>
+
+              <div class="pso-field">
+                <label for="pso-apply-email">Email</label>
+                <input id="pso-apply-email" type="email" placeholder="you@example.com" required>
+              </div>
+
+              <div class="pso-field">
+                <label for="pso-apply-phone">Phone</label>
+                <input id="pso-apply-phone" type="text" placeholder="(555) 555-5555">
+              </div>
+
+              <div class="pso-field">
+                <label for="pso-apply-instrument">Instrument</label>
+                <input id="pso-apply-instrument" type="text" placeholder="Violin, Flute, Trumpet" required>
+              </div>
+
+              <div class="pso-field">
+                <label for="pso-apply-section">Preferred Section</label>
+                <select id="pso-apply-section" required>
+                  <option value="">Choose a section</option>
+                  <option value="strings">Strings</option>
+                  <option value="woodwinds">Woodwinds</option>
+                  <option value="brass">Brass</option>
+                  <option value="percussion">Percussion</option>
+                </select>
+              </div>
+
+              <div class="pso-field">
+                <label for="pso-apply-years">Years of Experience</label>
+                <input id="pso-apply-years" type="text" placeholder="Example: 6 years">
+              </div>
+
+              <div class="pso-field pso-field--full">
+                <label for="pso-apply-bio">Short Background</label>
+                <textarea id="pso-apply-bio" placeholder="Tell us about your musical experience, training, and ensemble work." required></textarea>
+              </div>
+
+              <div class="pso-field pso-field--full">
+                <label for="pso-apply-piece">Audition / Interview Piece</label>
+                <input id="pso-apply-piece" type="text" placeholder="What piece are you performing or preparing?">
+              </div>
+
+              <div class="pso-field pso-field--full">
+                <label for="pso-apply-availability">Availability</label>
+                <textarea id="pso-apply-availability" placeholder="List rehearsal times, interview times, or schedule notes."></textarea>
+              </div>
+
+              <div class="pso-field">
+                <label for="pso-apply-video">Video Upload</label>
+                <input id="pso-apply-video" type="file" accept="video/*">
+                <small id="pso-apply-video-note">No file selected.</small>
+              </div>
+
+              <div class="pso-field">
+                <label for="pso-apply-video-link">Video Link</label>
+                <input id="pso-apply-video-link" type="url" placeholder="https://youtube.com/...">
+              </div>
+            </div>
+
+            <div class="pso-membership-form-actions">
+              <button class="pso-button pso-button-primary" type="submit">Submit Request</button>
+            </div>
+
+            <p class="pso-auth-message" id="pso-membership-form-message" role="status" aria-live="polite"></p>
+          </form>
+        </article>
+      </section>
+
+      <section class="pso-membership-grid">
+        <article class="pso-membership-card" id="pso-user-chat-card" hidden>
+          <h2>Your Chat With Admin</h2>
+          <p class="pso-membership-copy">
+            Use this thread to talk with the orchestra admin about interview timing, audition materials, or next steps.
+          </p>
+
+          <div class="pso-chat-window" id="pso-user-chat-messages"></div>
+
+          <div class="pso-chat-compose">
+            <textarea id="pso-user-chat-input" placeholder="Write a message to admin..."></textarea>
+            <button class="pso-button pso-button-primary" id="pso-user-chat-send" type="button">Send</button>
+          </div>
+        </article>
+
+        <article class="pso-membership-card" id="pso-member-custom-card" hidden>
+          <h2>Member Profile Customization</h2>
+          <p class="pso-membership-copy">
+            Approved members can save their own profile details here and also continue editing from the main profile page.
+          </p>
+
+          <div class="pso-membership-field-grid">
+            <div class="pso-field">
+              <label for="pso-member-display-name">Display Name</label>
+              <input id="pso-member-display-name" type="text" placeholder="How your name should appear">
+            </div>
+
+            <div class="pso-field">
+              <label for="pso-member-section">Section</label>
+              <input id="pso-member-section" type="text" placeholder="Strings, Brass, etc.">
+            </div>
+
+            <div class="pso-field">
+              <label for="pso-member-instruments">Instruments</label>
+              <input id="pso-member-instruments" type="text" placeholder="Violin, Piano">
+            </div>
+
+            <div class="pso-field">
+              <label for="pso-member-featured-piece">Featured Piece</label>
+              <input id="pso-member-featured-piece" type="text" placeholder="Favorite or featured repertoire">
+            </div>
+
+            <div class="pso-field pso-field--full">
+              <label for="pso-member-image">Profile Image URL</label>
+              <input id="pso-member-image" type="url" placeholder="https://example.com/photo.jpg">
+            </div>
+
+            <div class="pso-field pso-field--full">
+              <label for="pso-member-bio">Member Bio</label>
+              <textarea id="pso-member-bio" placeholder="Write a short member bio."></textarea>
+            </div>
+          </div>
+
+          <div class="pso-membership-form-actions">
+            <button class="pso-button pso-button-primary" id="pso-member-save" type="button">Save Member Profile</button>
+            <a class="pso-button pso-button-secondary" href="{{ '/powayorchestra/profile/' | relative_url }}">Open Main Profile Page</a>
+          </div>
+
+          <p class="pso-auth-message" id="pso-member-save-message" role="status" aria-live="polite"></p>
+        </article>
+      </section>
+
+      <section class="pso-membership-card" id="pso-admin-card" hidden>
+        <div class="pso-admin-head">
+          <div>
+            <h2>Admin Request Review + Chat</h2>
+            <p class="pso-membership-copy">
+              Review applications, approve or reject them, and chat directly with each applicant.
+            </p>
+          </div>
+        </div>
+
+        <div class="pso-admin-grid">
+          <div>
+            <h3>Submitted Requests</h3>
+            <div id="pso-admin-request-list" class="pso-admin-request-list"></div>
+          </div>
+
+          <div>
+            <h3>Selected Request</h3>
+            <div id="pso-admin-request-detail" class="pso-admin-request-detail">
+              <p>Select a request to review.</p>
+            </div>
+
+            <div class="pso-admin-actions" id="pso-admin-actions" hidden>
+              <button class="pso-button pso-button-primary" id="pso-admin-approve" type="button">Approve</button>
+              <button class="pso-button pso-button-secondary" id="pso-admin-reject" type="button">Reject</button>
+            </div>
+
+            <h3>Admin Chat</h3>
+            <div class="pso-chat-window" id="pso-admin-chat-messages"></div>
+
+            <div class="pso-chat-compose">
+              <textarea id="pso-admin-chat-input" placeholder="Message the applicant..."></textarea>
+              <button class="pso-button pso-button-primary" id="pso-admin-chat-send" type="button">Send</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    {% include powayorchestra/sections/footer.html %}
+  </div>
+
+  <script src="{{ '/assets/js/capstones/powayorchestra/progression.js' | relative_url }}"></script>
+  <script src="{{ '/assets/js/capstones/powayorchestra/membership-portal.js' | relative_url }}"></script>
+</body>
