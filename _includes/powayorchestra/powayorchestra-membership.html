@@ -1,7 +1,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ page.title }}</title>
+  <title>{{ page.title | default: 'Membership Hub | Poway Symphony Orchestra' }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ '/assets/css/capstones/powayorchestra/home-page.css' | relative_url }}">
@@ -17,45 +17,61 @@
         <p class="pso-membership-eyebrow">Poway Symphony Orchestra</p>
         <h1>Apply to Join the Orchestra</h1>
         <p class="pso-membership-subtitle">
-          Public visitors can browse the site, buy tickets, and enjoy games. Orchestra members get their own profile tools, member settings, and direct admin communication.
+          Submit an audition or interview request, share your musical background, and connect directly with the orchestra team.
         </p>
       </section>
 
-      <section class="pso-membership-grid">
-        <article class="pso-membership-card">
-          <h2>Roles on the Site</h2>
-          <div class="pso-membership-role-list">
-            <div class="pso-membership-role-item">
-              <strong>User / Visitor</strong>
-              <p>Can browse the site, buy tickets, watch media, and play games.</p>
-            </div>
-            <div class="pso-membership-role-item">
-              <strong>Applicant</strong>
-              <p>Signed-in user who has submitted an orchestra interview or audition request.</p>
-            </div>
-            <div class="pso-membership-role-item">
-              <strong>Member</strong>
-              <p>Approved orchestra member with profile customization and member tools.</p>
-            </div>
-            <div class="pso-membership-role-item">
-              <strong>Admin</strong>
-              <p>Reviews requests, approves members, and chats with applicants.</p>
+      <section class="pso-membership-grid pso-membership-grid-main">
+        <aside class="pso-membership-card pso-membership-sidebar-card">
+          <div class="pso-membership-sidebar-section">
+            <p class="pso-membership-mini-label">Membership Process</p>
+            <h2>How it Works</h2>
+            <div class="pso-membership-steps">
+              <div class="pso-membership-step">
+                <span class="pso-membership-step-number">1</span>
+                <div>
+                  <strong>Submit your request</strong>
+                  <p>Fill out the form with your instrument, background, and availability.</p>
+                </div>
+              </div>
+
+              <div class="pso-membership-step">
+                <span class="pso-membership-step-number">2</span>
+                <div>
+                  <strong>Share a performance sample</strong>
+                  <p>Upload a video file or include a YouTube or Vimeo link.</p>
+                </div>
+              </div>
+
+              <div class="pso-membership-step">
+                <span class="pso-membership-step-number">3</span>
+                <div>
+                  <strong>Hear from the orchestra team</strong>
+                  <p>Once submitted, you can use the built-in chat to follow up with admin.</p>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="pso-membership-status-box">
-            <h3>Current Access</h3>
+            <p class="pso-membership-mini-label">Current Access</p>
+            <h3>Your Account</h3>
             <p id="pso-membership-current-user">Checking sign-in status...</p>
             <p id="pso-membership-current-role">Loading role...</p>
             <a class="pso-button pso-button-secondary" href="{{ '/powayorchestra/signin/' | relative_url }}">Go to Sign In</a>
           </div>
-        </article>
+        </aside>
 
-        <article class="pso-membership-card">
-          <h2>Interview / Audition Request</h2>
-          <p class="pso-membership-copy">
-            Sign in first, then submit your request here. You can upload a video file and also include a YouTube or Vimeo link.
-          </p>
+        <article class="pso-membership-card pso-membership-form-card">
+          <div class="pso-membership-card-head">
+            <div>
+              <p class="pso-membership-mini-label">Application Form</p>
+              <h2>Interview / Audition Request</h2>
+            </div>
+            <p class="pso-membership-card-copy">
+              Sign in first, then submit your request here. You can upload a video file and also include a YouTube or Vimeo link.
+            </p>
+          </div>
 
           <form id="pso-membership-form" class="pso-membership-form">
             <div class="pso-membership-field-grid">
@@ -123,7 +139,7 @@
             </div>
 
             <div class="pso-membership-form-actions">
-              <button class="pso-button pso-button-primary" type="submit">Submit Request</button>
+              <button class="pso-button pso-button-primary pso-membership-submit" type="submit">Submit Request</button>
             </div>
 
             <p class="pso-auth-message" id="pso-membership-form-message" role="status" aria-live="polite"></p>
