@@ -27,7 +27,67 @@ export default class LostSymphonyRenderer {
         border-radius: 30px;
         box-shadow: 0 26px 64px var(--ls-shadow);
         overflow: hidden;
+        position: relative;
+        min-height: 720px;
+        height: 100%;
         font-family: Georgia, 'Times New Roman', serif;
+      }
+
+      .ls-stage,
+      .ls-ending-stage {
+        min-height: 720px;
+        height: 100%;
+      }
+
+      .ls-stage {
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        background:
+          linear-gradient(180deg, rgba(17, 7, 8, 0.08) 0%, rgba(17, 7, 8, 0.28) 55%, rgba(17, 7, 8, 0.84) 100%),
+          center / cover no-repeat var(--ls-opening-image);
+      }
+
+      .ls-stage::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(12, 6, 7, 0.06) 0%, rgba(12, 6, 7, 0) 48%, rgba(12, 6, 7, 0.78) 100%);
+        pointer-events: none;
+      }
+
+      .ls-ending-stage {
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        background:
+          radial-gradient(circle at top left, rgba(201, 150, 58, 0.22), transparent 26%),
+          radial-gradient(circle at 80% 18%, rgba(92, 17, 24, 0.18), transparent 24%),
+          linear-gradient(180deg, #1f0d10 0%, #120708 100%);
+      }
+
+      .ls-ending-card {
+        width: min(720px, 100%);
+        padding: 2rem;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 248, 240, 0.14);
+        background: rgba(17, 8, 10, 0.82);
+        color: #fff9f3;
+        text-align: center;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+      }
+
+      .ls-ending-card h2 {
+        margin: 0.45rem 0 0;
+        font-family: 'Trebuchet MS', 'Gill Sans', sans-serif;
+        font-size: clamp(2rem, 4vw, 3.5rem);
+      }
+
+      .ls-ending-card p {
+        margin: 0.9rem auto 0;
+        max-width: 34ch;
+        color: rgba(255, 249, 243, 0.78);
+        line-height: 1.7;
       }
 
       .lost-symphony-shell,
@@ -123,6 +183,164 @@ export default class LostSymphonyRenderer {
       .ls-stat,
       .ls-world-tag {
         padding: 0.6rem 0.9rem;
+      }
+
+      .ls-hero-actions {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .ls-hero-button {
+        border: 1px solid rgba(255, 249, 243, 0.28);
+        background: rgba(255, 249, 243, 0.08);
+        color: #fff9f3;
+        border-radius: 999px;
+        padding: 0.7rem 1rem;
+        cursor: pointer;
+        font-family: 'Trebuchet MS', 'Gill Sans', sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .ls-opening-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 40;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+        background: rgba(18, 7, 8, 0.74);
+        backdrop-filter: blur(12px);
+      }
+
+      .ls-opening-frame {
+        width: min(1080px, 100%);
+        overflow: hidden;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 248, 240, 0.22);
+        background: #15080a;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+      }
+
+      .ls-opening-visual {
+        position: relative;
+        min-height: min(62vh, 680px);
+        display: flex;
+        align-items: flex-end;
+        background:
+          linear-gradient(180deg, rgba(17, 7, 8, 0.08) 0%, rgba(17, 7, 8, 0.28) 55%, rgba(17, 7, 8, 0.84) 100%),
+          center / cover no-repeat var(--ls-opening-image);
+      }
+
+      .ls-opening-copy {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        padding: 1.25rem;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+      .ls-opening-dialogue-bar {
+        width: min(100%, 1160px);
+        display: grid;
+        gap: 0.9rem;
+      }
+
+      .ls-opening-dialogue {
+        width: 100%;
+        padding: 1rem 1.15rem;
+        border-radius: 22px;
+        background: rgba(17, 8, 10, 0.86);
+        border: 1px solid rgba(255, 248, 240, 0.16);
+        color: #fff9f3;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.24);
+      }
+
+      .ls-opening-speaker {
+        margin: 0;
+        font-family: 'Trebuchet MS', 'Gill Sans', sans-serif;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #f2c876;
+      }
+
+      .ls-opening-tone {
+        margin-left: 0.45rem;
+        color: rgba(255, 249, 243, 0.64);
+      }
+
+      .ls-opening-line {
+        margin: 0.55rem 0 0;
+        font-size: clamp(1.05rem, 1.55vw, 1.28rem);
+        line-height: 1.75;
+        min-height: calc(1.75em * 2);
+      }
+
+      .ls-opening-line.is-thought {
+        font-style: italic;
+      }
+
+      .ls-opening-line.is-direction {
+        margin-top: 0;
+        font-weight: 700;
+      }
+
+      .ls-opening-line.is-typing::after {
+        content: '';
+        display: inline-block;
+        width: 0.1em;
+        height: 1em;
+        margin-left: 0.14em;
+        vertical-align: -0.08em;
+        background: currentColor;
+        animation: ls-dialogue-caret 0.8s steps(1, end) infinite;
+      }
+
+      @keyframes ls-dialogue-caret {
+        0%,
+        45% {
+          opacity: 1;
+        }
+
+        46%,
+        100% {
+          opacity: 0;
+        }
+      }
+
+      .ls-opening-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.75rem;
+      }
+
+      .ls-opening-button,
+      .ls-opening-link {
+        border-radius: 999px;
+        padding: 0.8rem 1.05rem;
+        font-family: 'Trebuchet MS', 'Gill Sans', sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2);
+      }
+
+      .ls-opening-button {
+        border: 0;
+        background: linear-gradient(135deg, #e8b553 0%, #c9963a 100%);
+        color: #2d110e;
+      }
+
+      .ls-opening-link {
+        border: 1px solid rgba(255, 248, 240, 0.18);
+        background: transparent;
+        color: #fff9f3;
       }
 
       .ls-hero-aside {
@@ -281,197 +499,74 @@ export default class LostSymphonyRenderer {
         }
 
         .ls-door,
-        .ls-link-button {
+        .ls-link-button,
+        .ls-opening-button,
+        .ls-opening-link {
+          width: 100%;
+        }
+
+        .ls-opening-overlay {
+          padding: 0.75rem;
+        }
+
+        .ls-opening-copy,
+        .ls-opening-dialogue {
+          padding: 1rem;
+        }
+
+        .ls-opening-actions {
+          justify-content: stretch;
+        }
+
+        .ls-opening-button,
+        .ls-opening-link {
           width: 100%;
         }
       }
     `;
   }
 
-  static render({ state, activeWorld, activeLayout, battleLayout, worldOrder, fileMap }) {
-    const reclaimedCount = state.reclaimedSections.length;
-    const totalRecoverable = 4;
-    const completionPercent = Math.round((reclaimedCount / totalRecoverable) * 100);
+  static render({ openingScene }) {
+    const currentLine = openingScene?.currentLine;
+    const isDirection = currentLine?.tone === 'direction';
+    const isThought = currentLine?.tone === 'internal thought';
+    const lineClasses = ['ls-opening-line', isDirection ? 'is-direction' : '', isThought ? 'is-thought' : '']
+      .filter(Boolean)
+      .join(' ');
 
     return `
       <section class="lost-symphony-shell">
-        <header class="ls-hero">
-          <div class="ls-hero-grid">
-            <div>
-              <p class="ls-kicker">Poway Symphony Orchestra Game Layout</p>
-              <h1 class="ls-title">The Lost Symphony</h1>
-              <p class="ls-hero-copy">
-                This is the structural game shell: overworld hub, section worlds, and the embedded
-                Battle of the Sections encounter layout. Characters, mechanics, backgrounds, NPCs,
-                and items can now be built world by world without changing the core project structure.
-              </p>
-              <div class="ls-pill-row" style="margin-top: 1rem;">
-                <div class="ls-pill">Explore world</div>
-                <div class="ls-pill">Find missing musician or instrument</div>
-                <div class="ls-pill">Trigger section battle</div>
-                <div class="ls-pill">Reclaim section</div>
-                <div class="ls-pill">Unlock final concert</div>
+        ${openingScene?.isVisible ? `
+          <div class="ls-stage" aria-live="polite" style="--ls-opening-image: url('${escapeHtml(openingScene.imagePath)}');">
+            <div class="ls-opening-copy">
+              <div class="ls-opening-dialogue-bar">
+                <div class="ls-opening-dialogue">
+                  ${isDirection ? '' : `
+                    <p class="ls-opening-speaker">
+                      ${escapeHtml(currentLine.speaker)}
+                      <span class="ls-opening-tone">${escapeHtml(currentLine.tone)}</span>
+                    </p>
+                  `}
+                  <p class="${lineClasses}" data-opening-line data-full-text="${escapeHtml(currentLine.text)}">${escapeHtml(currentLine.text)}</p>
+                </div>
+                <div class="ls-opening-actions">
+                  <button type="button" class="ls-opening-button" data-opening-next>
+                    ${openingScene.hasNext ? 'Next line' : 'Finish intro'}
+                  </button>
+                  <button type="button" class="ls-opening-link" data-opening-skip>Skip intro</button>
+                </div>
               </div>
             </div>
-            <aside class="ls-hero-aside">
-              <p class="ls-label">Current Scaffold Status</p>
-              <div class="ls-stat" style="margin-top: 0.7rem; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12);">
-                <span class="ls-mini-label">Sections Reclaimed</span>
-                <strong>${reclaimedCount} / ${totalRecoverable}</strong>
-              </div>
-              <div class="ls-progress" style="margin-top: 0.75rem;"><span style="width: ${completionPercent}%;"></span></div>
-              <ul style="margin: 0.9rem 0 0; padding-left: 1.1rem; line-height: 1.7;">
-                <li>Hub map scaffolded</li>
-                <li>Each world has its own file</li>
-                <li>Battle mini-game shell scaffolded</li>
-                <li>Final concert route reserved</li>
-              </ul>
-            </aside>
           </div>
-        </header>
-
-        <div class="ls-body">
-          <aside class="ls-sidebar">
-            <section class="ls-card">
-              <p class="ls-card-label">World Doors</p>
-              <h3>Concert Hall Map</h3>
-              <div class="ls-door-grid">
-                ${worldOrder.map((world) => {
-                  const isActive = world.id === activeWorld.id;
-                  const isUnlocked = state.unlockedWorldIds.includes(world.id) || world.id === 'hub';
-                  const classes = ['ls-door', isActive ? 'is-active' : '', isUnlocked ? '' : 'is-locked'].filter(Boolean).join(' ');
-                  return `
-                    <button type="button" class="${classes}" data-world-select="${escapeHtml(world.id)}" ${isUnlocked ? '' : 'disabled'}>
-                      <strong>${escapeHtml(world.shortTitle)}</strong>
-                      <span>${escapeHtml(world.environment)}</span>
-                    </button>
-                  `;
-                }).join('')}
-              </div>
-            </section>
-
-            <section class="ls-card">
-              <p class="ls-card-label">Recovered Orchestra</p>
-              <h3>Section Status</h3>
-              <div class="ls-list-grid">
-                ${['Strings', 'Brass', 'Woodwinds', 'Percussion'].map((section) => {
-                  const recovered = state.reclaimedSections.includes(section);
-                  return `
-                    <div class="ls-list-card">
-                      <strong>${section}</strong>
-                      <span>${recovered ? 'Reclaimed and back on stage' : 'Still corrupted in its world'}</span>
-                    </div>
-                  `;
-                }).join('')}
-              </div>
-            </section>
-
-            <section class="ls-card">
-              <p class="ls-card-label">Flow Summary</p>
-              <div class="ls-flow-grid">
-                <div class="ls-flow-step">Explore a section world</div>
-                <div class="ls-flow-step">Find the missing target</div>
-                <div class="ls-flow-step">Start Battle of the Sections</div>
-                <div class="ls-flow-step">Return the section to the orchestra</div>
-              </div>
-            </section>
-          </aside>
-
-          <main class="ls-world-panel">
-            <p class="ls-label">${escapeHtml(activeWorld.statusLabel)}</p>
-            <h2>${escapeHtml(activeWorld.title)}</h2>
-            <p>${escapeHtml(activeWorld.theme)}</p>
-
-            <div class="ls-tag-row">
-              <div class="ls-world-tag"><strong>Section</strong>${escapeHtml(activeWorld.section)}</div>
-              <div class="ls-world-tag"><strong>Environment</strong>${escapeHtml(activeWorld.environment)}</div>
-              <div class="ls-world-tag"><strong>Goal</strong>${escapeHtml(activeWorld.goal)}</div>
-            </div>
-
-            <div class="ls-world-grid" style="margin-top: 1rem;">
-              <section class="ls-card">
-                <p class="ls-card-label">World Layout</p>
-                <h3>${escapeHtml(activeLayout.sceneTitle)}</h3>
-                <p>${escapeHtml(activeLayout.sceneCopy)}</p>
-                <div class="ls-objective-list" style="margin-top: 1rem;">
-                  ${activeLayout.objectives.map((objective) => `
-                    <div class="ls-objective">${escapeHtml(objective)}</div>
-                  `).join('')}
-                </div>
-              </section>
-
-              <section class="ls-card">
-                <p class="ls-card-label">Encounter Trigger</p>
-                <h3>Find Then Fight</h3>
-                <p>${escapeHtml(activeLayout.encounterTrigger)}</p>
-                <div class="ls-note" style="margin-top: 0.9rem;">
-                  <strong>Transition Note</strong>
-                  <div>${escapeHtml(activeLayout.transitionNote)}</div>
-                </div>
-              </section>
-            </div>
-
-            <div class="ls-world-meta" style="margin-top: 1rem;">
-              <section class="ls-card">
-                <p class="ls-card-label">Placeholders To Build Later</p>
-                <h4>NPCs and Items</h4>
-                <div class="ls-list-grid">
-                  ${activeWorld.npcIdeas.map((entry) => `<div class="ls-list-card">NPC: ${escapeHtml(entry)}</div>`).join('')}
-                  ${activeWorld.itemIdeas.map((entry) => `<div class="ls-list-card">Item: ${escapeHtml(entry)}</div>`).join('')}
-                </div>
-              </section>
-
-              <section class="ls-card">
-                <p class="ls-card-label">Scene Anchors</p>
-                <h4>Background and Navigation Notes</h4>
-                <div class="ls-list-grid">
-                  ${activeLayout.visualAnchors.map((entry) => `<div class="ls-list-card">${escapeHtml(entry)}</div>`).join('')}
-                </div>
-              </section>
-            </div>
-
-            <div class="ls-battle-grid" style="margin-top: 1rem;">
-              <section class="ls-card ls-battle-card">
-                <p class="ls-card-label">Embedded Mini-Game</p>
-                <h3>${escapeHtml(battleLayout.title)}</h3>
-                <p>${escapeHtml(battleLayout.prompt)}</p>
-                <div class="ls-list-grid" style="margin-top: 0.85rem;">
-                  ${battleLayout.mechanics.map((entry) => `<div class="ls-list-card">${escapeHtml(entry)}</div>`).join('')}
-                </div>
-              </section>
-
-              <section class="ls-card">
-                <p class="ls-card-label">Battle Placement In Flow</p>
-                <h3>How It Connects</h3>
-                <div class="ls-list-grid">
-                  <div class="ls-list-card">Arena: ${escapeHtml(battleLayout.arena)}</div>
-                  <div class="ls-list-card">Reward: ${escapeHtml(battleLayout.reward)}</div>
-                  <div class="ls-list-card">Missing Target: ${escapeHtml(activeWorld.missingTarget)}</div>
-                  <div class="ls-list-card">${escapeHtml(battleLayout.placeholderNote)}</div>
-                </div>
-              </section>
-            </div>
-
-            <div class="ls-files-grid" style="margin-top: 1rem;">
-              ${fileMap.map((fileEntry) => `
-                <section class="ls-file-card">
-                  <p class="ls-card-label">${escapeHtml(fileEntry.label)}</p>
-                  <strong>${escapeHtml(fileEntry.title)}</strong>
-                  <code>${escapeHtml(fileEntry.path)}</code>
-                </section>
-              `).join('')}
-            </div>
-
-            <div class="ls-action-row" style="margin-top: 1rem;">
-              ${activeWorld.unlocks.map((nextWorldId) => `
-                <button type="button" class="ls-link-button" data-world-select="${escapeHtml(nextWorldId)}">
-                  <strong>Open ${escapeHtml(nextWorldId)}</strong>
-                  <span>Preview the next world scaffold</span>
-                </button>
-              `).join('')}
-            </div>
-          </main>
-        </div>
+        ` : `
+          <div class="ls-ending-stage">
+            <article class="ls-ending-card">
+              <p class="ls-kicker">The Lost Symphony</p>
+              <h2>To be continued</h2>
+              <p>The rest of the game is still in development.</p>
+            </article>
+          </div>
+        `}
       </section>
     `;
   }

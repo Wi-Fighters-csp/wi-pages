@@ -8,6 +8,8 @@ NOTEBOOK_FILENAME = $(DATE_OF_CREATION)-$(PROJECT_NAME).ipynb
 ROUTE_FILENAME = $(DATE_OF_CREATION)-$(PROJECT_NAME)_IPYNB_2_.md
 
 WORKSPACE_ROOT = ../..
+WORKSPACE_NOTEBOOK_DEST = _notebooks/projects/$(PROJECT_NAME)
+WORKSPACE_DOCS_DEST = _posts/projects/$(PROJECT_NAME)
 
 JS_DEST = $(WORKSPACE_ROOT)/assets/js/projects/$(PROJECT_NAME)
 IMAGES_DEST = $(WORKSPACE_ROOT)/images/projects/$(PROJECT_NAME)
@@ -17,12 +19,12 @@ DOCS_DEST = $(WORKSPACE_ROOT)/_posts/projects/$(PROJECT_NAME)
 build:
 	@mkdir -p $(NOTEBOOK_DEST)
 	@cp notebook.src.ipynb $(NOTEBOOK_DEST)/$(NOTEBOOK_FILENAME) 2>/dev/null || true
-	@cd $(WORKSPACE_ROOT) && $(MAKE) convert-single NOTEBOOK_FILE="$(NOTEBOOK_DEST)/$(NOTEBOOK_FILENAME)"
+	@cd $(WORKSPACE_ROOT) && $(MAKE) convert-single NOTEBOOK_FILE="$(WORKSPACE_NOTEBOOK_DEST)/$(NOTEBOOK_FILENAME)"
 	@$(MAKE) assets
 	@echo "✅ $(PROJECT_NAME) built successfully"
 	@echo "   Source: _projects/$(PROJECT_NAME)/"
-	@echo "   Notebook: _notebooks/projects/$(PROJECT_NAME)/$(NOTEBOOK_FILENAME)"
-	@echo "   Route: _posts/projects/$(PROJECT_NAME)/$(ROUTE_FILENAME)"
+	@echo "   Notebook: $(WORKSPACE_NOTEBOOK_DEST)/$(NOTEBOOK_FILENAME)"
+	@echo "   Route: $(WORKSPACE_DOCS_DEST)/$(ROUTE_FILENAME)"
 	@echo "   JavaScript: assets/js/projects/$(PROJECT_NAME)/"
 	@echo "   Images: images/projects/$(PROJECT_NAME)/"
 
@@ -50,7 +52,7 @@ watch:
 				echo "  🔄 Notebook changed - copying and converting..."; \
 				mkdir -p $(NOTEBOOK_DEST); \
 				cp $(PROJECT_SRC)/notebook.src.ipynb $(NOTEBOOK_DEST)/$(NOTEBOOK_FILENAME) 2>/dev/null || true; \
-				cd $(WORKSPACE_ROOT) && make convert-single NOTEBOOK_FILE="$(NOTEBOOK_DEST)/$(NOTEBOOK_FILENAME)" 2>&1; \
+				cd $(WORKSPACE_ROOT) && make convert-single NOTEBOOK_FILE="$(WORKSPACE_NOTEBOOK_DEST)/$(NOTEBOOK_FILENAME)" 2>&1; \
 			elif echo "$$changed_file" | grep -q "/levels/\|/model/"; then \
 				filename=$$(basename "$$changed_file"); \
 				echo "  🔄 Script changed: $$filename"; \

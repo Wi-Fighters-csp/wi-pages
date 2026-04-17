@@ -6,6 +6,7 @@ const DEFAULT_STATE = {
   reclaimedSections: [],
   battleVictories: [],
   finalConcertUnlocked: false,
+  openingSceneSeen: false,
   lastVisitedAt: null
 };
 
