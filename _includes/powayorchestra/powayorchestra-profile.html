@@ -224,6 +224,22 @@
               </p>
             </div>
 
+                        <!-- ADD THIS NEW SECTION -->
+            <div class="pso-profile-recommendations" id="pso-profile-recommendations" hidden>
+              <div class="pso-profile-member-card-head">
+                <h4>Recommended Concerts</h4>
+                <p class="pso-signin-section-copy">
+                  Based on your favorite performances, here are upcoming concerts you might enjoy.
+                </p>
+              </div>
+              
+              <div class="pso-profile-recommendations-status" id="pso-recommendations-status" role="status" aria-live="polite">
+                Analyzing your preferences...
+              </div>
+              
+              <div class="pso-profile-recommendations-list" id="pso-recommendations-list" aria-live="polite"></div>
+            </div>
+
             <div class="pso-profile-favorites-status" id="pso-favorites-status" role="status" aria-live="polite">
               Your favorites are stored on this profile when backend sync is available.
             </div>
@@ -336,6 +352,9 @@
   const memberCardSaveButton = document.getElementById('pso-member-card-save');
   const memberOnlyElements = Array.from(document.querySelectorAll('[data-member-only]'));
   const memberPanels = Array.from(document.querySelectorAll('[data-member-panel]'));
+  const recommendationsContainer = document.getElementById('pso-profile-recommendations');
+  const recommendationsStatus = document.getElementById('pso-recommendations-status');
+  const recommendationsList = document.getElementById('pso-recommendations-list');
   const summaryGrid = document.getElementById('pso-profile-summary-grid');
   const experienceGrid = document.getElementById('pso-profile-experience-grid');
   const concertsCard = document.getElementById('pso-concerts-card');
@@ -947,6 +966,61 @@
         : 'Submit your name, email, instrument, and section to request orchestra membership. Member-only tools stay locked until an admin approves the request.');
   }
 
+  async function fetchRecommendedConcerts() {
+    if (!currentUser || favoriteState.performances.length === 0) {
+      recommendationsContainer.hidden = true;
+      return;
+    }
+
+    recommendationsContainer.hidden = false;
+    recommendationsStatus.textContent = 'Analyzing your preferences...';
+
+    try {
+      const response = await fetch(`${pythonURI}/api/pso/recommendations`, {
+        ...fetchOptions,
+        method: 'POST',
+        body: JSON.stringify({
+          favorite_performances: favoriteState.performances
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(await parseResponseMessage(response, 'Unable to load recommendations.'));
+      }
+
+      const data = await response.json();
+      const recommendations = data && data.recommendations ? data.recommendations : [];
+      
+      renderRecommendations(recommendations);
+    } catch (error) {
+      recommendationsStatus.textContent = 'Could not generate recommendations at this time.';
+      recommendationsStatus.classList.add('is-error');
+    }
+  }
+
+  function renderRecommendations(recommendations) {
+    if (!recommendations.length) {
+      recommendationsStatus.textContent = 'No matching concerts found. Try adding more favorite performances!';
+      recommendationsList.innerHTML = '';
+      return;
+    }
+
+    recommendationsStatus.textContent = `Found ${recommendations.length} concert${recommendations.length !== 1 ? 's' : ''} matching your preferences`;
+    recommendationsStatus.classList.remove('is-error');
+
+    recommendationsList.innerHTML = recommendations.map((rec) => {
+      return `
+        <article class="pso-profile-recommendation-item">
+          <strong>${escapeHtml(rec.title || '')}</strong>
+          <p><span class="pso-panel-label">Date:</span> ${escapeHtml(rec.date || '')}</p>
+          <p><span class="pso-panel-label">Match Reason:</span> ${escapeHtml(rec.reason || 'Similar to your favorites')}</p>
+          <p class="pso-signin-section-copy">${escapeHtml(rec.note || '')}</p>
+          <a href="/tickets/" class="pso-button pso-button-secondary">View Tickets</a>
+        </article>
+      `;
+    }).join('');
+  }
+
   function setAccountLinks(user) {
     accountLinks.forEach((link) => {
       if (user && user.name) {
@@ -1065,6 +1139,7 @@
 
       const user = await response.json();
       await renderUser(user);
+      await fetchRecommendedConcerts();  // ADD THIS LINE
     } catch (error) {
       adminDashboardLink.hidden = true;
       setAccountLinks(null);
@@ -1189,6 +1264,7 @@
       try {
         await saveFavoritesToAccountBackend(profile);
         setFavoritesStatus('Favorites saved to your profile.', false);
+        await fetchRecommendedConcerts();  // ADD THIS LINE
       } catch (error) {
         setFavoritesStatus(error.message || 'Favorites were saved only on this device.', true);
       } finally {
