@@ -10,7 +10,7 @@ Topics:
     buttonLabel: "View Frontend Site"
     backendLink: "http://wifighters.opencodingsociety.com"
     backendButtonLabel: "View Admin UI"
-    interactiveLink: "https://pso.opencodingsociety.com/games/"
+    interactiveLink: "/games/"
     interactiveButtonLabel: "Open Games Page"
     image: "capstone/pso.png"
     alt: "Poway Symphony Orchestra — capstone project infographic"
@@ -44,6 +44,24 @@ Topics:
       - "Responsive Design"
       - "Figma"
       - "User Research and Testing"
+
+    interactiveElements:
+      - title: "Orchestra Builder"
+        description: "A stage-layout game that teaches where each family belongs before a performance can start."
+        link: "/orchestra-builder/"
+        buttonLabel: "Open Builder"
+      - title: "Virtual Conductor"
+        description: "A live tempo-response experience using Poway Symphony Orchestra performance recordings."
+        link: "/conductor/"
+        buttonLabel: "Open Conductor Lab"
+      - title: "Tune the Orchestra"
+        description: "A quick ear-training mini game that asks players to match drone pitch before the ensemble performs."
+        link: "/media/#tune-the-orchestra"
+        buttonLabel: "Open Tuning Game"
+      - title: "The Lost Symphony"
+        description: "A new world-based orchestra adventure where players explore each section realm, trigger Battle of the Sections, and rebuild the full symphony."
+        link: "/games/lost-symphony"
+        buttonLabel: "Play The Lost Symphony"
 
     impact:
       - "Transforms a passive informational website into an interactive experience that actively engages visitors"

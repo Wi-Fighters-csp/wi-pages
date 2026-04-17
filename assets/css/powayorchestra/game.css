@@ -149,6 +149,50 @@
       linear-gradient(180deg, rgba(25,35,34,0.96), rgba(19,24,28,0.98));
   }
 
+  .games-preview-media-maestro {
+    background:
+      radial-gradient(circle at 18% 22%, rgba(216,177,98,0.16), transparent 26%),
+      radial-gradient(circle at 82% 20%, rgba(125,32,50,0.22), transparent 30%),
+      linear-gradient(180deg, rgba(40,24,28,0.96), rgba(22,17,20,1));
+  }
+
+  .games-preview-media-maestro .games-preview-ring {
+    width: 11rem;
+    height: 11rem;
+    border-style: dashed;
+    border-color: rgba(226,201,122,0.3);
+  }
+
+  .games-preview-media-maestro .games-preview-dot {
+    width: 16px;
+    height: 16px;
+    box-shadow: 0 0 0 6px rgba(255,255,255,0.03);
+  }
+
+  .games-preview-media-maestro .games-preview-dot.is-strings {
+    left: 22%;
+    top: 58%;
+    bottom: auto;
+  }
+
+  .games-preview-media-maestro .games-preview-dot.is-woodwinds {
+    left: 40%;
+    top: 36%;
+    bottom: auto;
+  }
+
+  .games-preview-media-maestro .games-preview-dot.is-brass {
+    left: 62%;
+    top: 50%;
+    bottom: auto;
+  }
+
+  .games-preview-media-maestro .games-preview-dot.is-percussion {
+    left: 76%;
+    top: 28%;
+    bottom: auto;
+  }
+
   .games-preview-tuning-line {
     position: absolute;
     left: 12%;
