@@ -7,7 +7,7 @@ import WoodwindWildsWorld from '/assets/js/projects/lost-symphony/levels/worlds/
 import PercussionPeaksWorld from '/assets/js/projects/lost-symphony/levels/worlds/PercussionPeaksWorld.js';
 import FinalConcertWorld from '/assets/js/projects/lost-symphony/levels/worlds/FinalConcertWorld.js';
 import BattleOfTheSections from '/assets/js/projects/lost-symphony/levels/minigames/BattleOfTheSections.js';
-import LostSymphonyRenderer from '/assets/js/projects/lost-symphony/levels/layout/LostSymphonyRenderer.js?v=20260417d';
+import LostSymphonyRenderer from '/assets/js/projects/lost-symphony/levels/layout/LostSymphonyRenderer.js?v=20260420a';
 
 const WORLD_CLASSES = {
   hub: OverworldHubWorld,

@@ -48,12 +48,13 @@ toc: False
 </div>
 </section>
 </section><script type="module">
-import { mountLostSymphonyGame } from "/assets/js/projects/lost-symphony/levels/LostSymphonyGame.js";
+import { mountLostSymphonyGame } from "/assets/js/projects/lost-symphony/levels/LostSymphonyGame.js?v=20260420a";
 
 const runner = document.getElementById("pso-lost-symphony-runner");
 
 if (runner) {
   const gameRoot = document.getElementById("pso-lost-symphony-root");
+  const gameStage = runner.querySelector(".pso-game-runner-stage");
   const playButton = runner.querySelector("[data-ls-play]");
   const pauseButton = runner.querySelector("[data-ls-pause]");
   const fullscreenButton = runner.querySelector("[data-ls-fullscreen]");
@@ -64,6 +65,17 @@ if (runner) {
 
   let activeGame = null;
   let isPaused = false;
+
+  function applyFullscreenState(isStageFullscreen) {
+    runner.classList.toggle("is-fullscreen", isStageFullscreen);
+    document.body.classList.toggle("pso-lost-symphony-fullscreen", isStageFullscreen);
+    fullscreenButton.textContent = isStageFullscreen ? "Exit Fullscreen" : "Fullscreen";
+  }
+
+  function updateFullscreenState() {
+    const activeFullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+    applyFullscreenState(activeFullscreenElement === gameStage);
+  }
 
   function setStatus(text) {
     statusNode.textContent = text;
@@ -110,13 +122,35 @@ if (runner) {
   }
 
   async function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      await runner.requestFullscreen();
+    if (!gameStage) return;
+
+    const activeFullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+    const requestFullscreen = gameStage.requestFullscreen?.bind(gameStage)
+      || gameStage.webkitRequestFullscreen?.bind(gameStage);
+    const exitFullscreen = document.exitFullscreen?.bind(document)
+      || document.webkitExitFullscreen?.bind(document);
+
+    if (activeFullscreenElement !== gameStage) {
+      applyFullscreenState(true);
+
+      if (requestFullscreen) {
+        try {
+          await requestFullscreen();
+        } catch (error) {
+          applyFullscreenState(false);
+          throw error;
+        }
+      }
+
       return;
     }
 
-    if (document.fullscreenElement === runner) {
-      await document.exitFullscreen();
+    if (activeFullscreenElement === gameStage) {
+      if (exitFullscreen) {
+        await exitFullscreen();
+      }
+
+      applyFullscreenState(false);
     }
   }
 
@@ -124,12 +158,11 @@ if (runner) {
   pauseButton.addEventListener("click", togglePause);
   fullscreenButton.addEventListener("click", toggleFullscreen);
 
-  document.addEventListener("fullscreenchange", () => {
-    const isRunnerFullscreen = document.fullscreenElement === runner;
-    fullscreenButton.textContent = isRunnerFullscreen ? "Exit Fullscreen" : "Fullscreen";
-  });
+  document.addEventListener("fullscreenchange", updateFullscreenState);
+  document.addEventListener("webkitfullscreenchange", updateFullscreenState);
 
   setOverlay("idle");
+  updateFullscreenState();
   setStatus("Ready");
 }
 </script>

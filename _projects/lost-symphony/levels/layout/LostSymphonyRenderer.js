@@ -33,10 +33,31 @@ export default class LostSymphonyRenderer {
         font-family: Georgia, 'Times New Roman', serif;
       }
 
+      body.pso-lost-symphony-fullscreen .lost-symphony-shell,
+      .pso-game-runner.is-fullscreen .lost-symphony-shell,
+      .pso-game-runner-stage:fullscreen .lost-symphony-shell {
+        min-height: 100vh;
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        border: 0;
+        box-shadow: none;
+      }
+
       .ls-stage,
       .ls-ending-stage {
         min-height: 720px;
         height: 100%;
+      }
+
+      body.pso-lost-symphony-fullscreen .ls-stage,
+      body.pso-lost-symphony-fullscreen .ls-ending-stage,
+      .pso-game-runner.is-fullscreen .ls-stage,
+      .pso-game-runner.is-fullscreen .ls-ending-stage,
+      .pso-game-runner-stage:fullscreen .ls-stage,
+      .pso-game-runner-stage:fullscreen .ls-ending-stage {
+        min-height: 100vh;
+        height: 100vh;
       }
 
       .ls-stage {

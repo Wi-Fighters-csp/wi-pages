@@ -94,6 +94,34 @@
     gap: 1rem;
   }
 
+  body.pso-lost-symphony-fullscreen {
+    overflow: hidden;
+  }
+
+  .pso-game-runner.is-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    gap: 0;
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+    background: #140b0c;
+  }
+
+  .pso-game-runner.is-fullscreen .pso-game-runner-bar {
+    display: none;
+  }
+
+  .pso-game-runner.is-fullscreen .pso-game-runner-stage {
+    min-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: 0;
+  }
+
   .pso-game-runner-bar {
     display: flex;
     flex-wrap: wrap;
@@ -192,6 +220,45 @@
 
   .pso-lost-symphony-canvas {
     min-height: 720px;
+  }
+
+  .pso-game-runner.is-fullscreen .pso-lost-symphony-canvas,
+  .pso-game-runner.is-fullscreen .lost-symphony-shell,
+  .pso-game-runner.is-fullscreen .ls-stage,
+  .pso-game-runner.is-fullscreen .ls-ending-stage,
+  .pso-game-runner.is-fullscreen canvas {
+    min-height: 100vh;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .pso-game-runner-stage:fullscreen {
+    min-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: 0;
+  }
+
+  .pso-game-runner-stage:fullscreen .pso-lost-symphony-canvas,
+  .pso-game-runner-stage:fullscreen .lost-symphony-shell,
+  .pso-game-runner-stage:fullscreen .ls-stage,
+  .pso-game-runner-stage:fullscreen .ls-ending-stage,
+  .pso-game-runner-stage:fullscreen canvas {
+    min-height: 100vh;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .pso-game-runner.is-fullscreen .pso-game-runner-overlay,
+  .pso-game-runner-stage:fullscreen .pso-game-runner-overlay {
+    padding: 2rem;
   }
 
   .pso-game-runner-overlay {
