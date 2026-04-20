@@ -116,41 +116,6 @@
           </div>
 
           <div class="pso-profile-member-gate" id="pso-member-gate" hidden>
-            <div class="pso-profile-member-gate-head">
-              <span class="pso-profile-gate-label" id="pso-member-gate-label">Orchestra Member Access Locked</span>
-              <p class="pso-profile-gate-copy" id="pso-member-gate-copy">
-                Register as a Poway Symphony Orchestra member to unlock instrument, practice time, and section tools on this profile.
-              </p>
-            </div>
-            <div class="pso-profile-member-request" id="pso-member-request-form">
-              <div class="pso-profile-request-grid">
-                <div class="pso-field">
-                  <label for="pso-member-request-name">Full Name</label>
-                  <input id="pso-member-request-name" type="text" autocomplete="name" placeholder="Your full name">
-                </div>
-                <div class="pso-field">
-                  <label for="pso-member-request-email">Email</label>
-                  <input id="pso-member-request-email" type="email" autocomplete="email" placeholder="you@example.com">
-                </div>
-                <div class="pso-field">
-                  <label for="pso-member-request-instrument">Instrument</label>
-                  <input id="pso-member-request-instrument" type="text" placeholder="Violin, Clarinet, Trumpet">
-                </div>
-                <div class="pso-field">
-                  <label for="pso-member-request-section">Section</label>
-                  <select id="pso-member-request-section">
-                    <option value="">Choose a section</option>
-                    <option value="strings">Strings</option>
-                    <option value="woodwinds">Woodwinds</option>
-                    <option value="brass">Brass</option>
-                    <option value="percussion">Percussion</option>
-                  </select>
-                </div>
-              </div>
-              <p class="pso-profile-request-note" id="pso-member-request-note">
-                Member requests stay locked until a Poway Symphony Orchestra admin reviews and approves them.
-              </p>
-            </div>
             <p class="pso-profile-pending-copy" id="pso-member-pending-copy" hidden>
               Your member request is pending admin approval. Member-only profile features will remain hidden until an orchestra admin approves your registration.
             </p>
@@ -299,6 +264,7 @@
     pythonURI = "https://wifighters.opencodingsociety.com";
   }
   const signInUrl = "{{ '/powayorchestra/signin/' | relative_url }}";
+  const membershipHubUrl = "{{ '/powayorchestra/membership/' | relative_url }}";
   const accountLinks = Array.from(document.querySelectorAll('[data-pso-account-link]'));
   const profileStatus = document.getElementById('pso-profile-status');
   const profileName = document.getElementById('pso-profile-name');
@@ -314,16 +280,10 @@
   const sidePanelCopy = document.getElementById('pso-side-panel-copy');
   const memberGateActions = document.getElementById('pso-member-gate-actions');
   let memberRegisterButton = null;
+  let memberRegisterPrompt = null;
   let memberWithdrawButton = null;
   let memberRemoveButton = null;
   const memberGate = document.getElementById('pso-member-gate');
-  const memberGateLabel = document.getElementById('pso-member-gate-label');
-  const memberGateCopy = document.getElementById('pso-member-gate-copy');
-  const memberRequestForm = document.getElementById('pso-member-request-form');
-  const memberRequestName = document.getElementById('pso-member-request-name');
-  const memberRequestEmail = document.getElementById('pso-member-request-email');
-  const memberRequestInstrument = document.getElementById('pso-member-request-instrument');
-  const memberRequestSection = document.getElementById('pso-member-request-section');
   const memberPendingCopy = document.getElementById('pso-member-pending-copy');
   const bioField = document.getElementById('pso-profile-bio');
   const instrumentsField = document.getElementById('pso-profile-instruments');
@@ -853,10 +813,6 @@
 
   function applyProfileState(profile) {
     bioField.value = profile.bio || '';
-    memberRequestName.value = profile.requestName || (currentUser ? currentUser.name || '' : '');
-    memberRequestEmail.value = profile.requestEmail || '';
-    memberRequestInstrument.value = profile.requestInstrument || '';
-    memberRequestSection.value = profile.requestSection || '';
     applyFavoriteState(profile);
     instrumentsField.value = profile.instruments || '';
     sectionField.value = profile.section || '';
@@ -889,6 +845,7 @@
     if (memberCardEditor) memberCardEditor.hidden = !unlocked;
     instrumentsField.disabled = !unlocked;
     sectionField.disabled = !unlocked;
+    memberPendingCopy.hidden = !pending;
     // Hide the entire gate section for registered members and admins — no redundant info
     memberGate.hidden = unlocked || isAdmin;
     memberGate.classList.toggle('is-unlocked', unlocked);
@@ -897,54 +854,18 @@
     if (!unlocked) {
       // Only show buttons if not a registered member
       if (!pending) {
-        memberRegisterButton = document.createElement('button');
+        memberRegisterPrompt = document.createElement('span');
+        memberRegisterPrompt.className = 'pso-profile-note';
+        memberRegisterPrompt.textContent = 'Want to apply to be a Poway Symphony Orchestra Musician?';
+        memberGateActions.appendChild(memberRegisterPrompt);
+
+        memberRegisterButton = document.createElement('a');
         memberRegisterButton.className = 'pso-button pso-button-primary';
         memberRegisterButton.id = 'pso-member-register';
-        memberRegisterButton.type = 'button';
-        memberRegisterButton.textContent = 'Submit Member Request';
+        memberRegisterButton.href = membershipHubUrl;
+        memberRegisterButton.setAttribute('data-allow-navigation', 'true');
+        memberRegisterButton.textContent = 'Apply Here';
         memberGateActions.appendChild(memberRegisterButton);
-        memberRegisterButton.addEventListener('click', async () => {
-          if (!currentUser) return;
-          if (!memberRequestName.value.trim() || !memberRequestEmail.value.trim() || !memberRequestInstrument.value.trim() || !memberRequestSection.value) {
-            setMessage('error', 'Name, email, instrument, and section are all required before you can submit a member request.');
-            return;
-          }
-          memberRegisterButton.disabled = true;
-          var profile = loadLocalProfile(currentUser);
-          profile.bio = bioField.value.trim();
-          try {
-            const response = await fetch(`${pythonURI}/api/pso/member-request`, {
-              ...fetchOptions,
-              method: 'POST',
-              body: JSON.stringify({
-                name: memberRequestName.value.trim(),
-                email: memberRequestEmail.value.trim(),
-                instrument: memberRequestInstrument.value.trim(),
-                section: memberRequestSection.value
-              })
-            });
-            if (!response.ok) {
-              throw new Error(await parseResponseMessage(response, 'Unable to submit your member request right now.'));
-            }
-            const data = await response.json();
-            const requestData = data && data.request ? data.request : {};
-            profile.requestName = requestData.name || memberRequestName.value.trim();
-            profile.requestEmail = requestData.email || memberRequestEmail.value.trim();
-            profile.requestInstrument = requestData.instrument || memberRequestInstrument.value.trim();
-            profile.requestSection = requestData.section || memberRequestSection.value;
-            profile.memberRequestPending = true;
-            profile.memberRequestSubmittedAt = requestData.submitted_at || new Date().toISOString();
-            profile.memberRegistered = false;
-            profile.memberRegisteredAt = '';
-            applyProfileState(profile);
-            window.localStorage.setItem(getProfileStorageKey(currentUser.uid), JSON.stringify(profile));
-            setMessage('success', 'Member request submitted. It is now available in the admin dashboard for review.');
-          } catch (error) {
-            setMessage('error', error.message);
-          } finally {
-            memberRegisterButton.disabled = false;
-          }
-        });
       } else {
         memberWithdrawButton = document.createElement('button');
         memberWithdrawButton.className = 'pso-button pso-button-secondary';
@@ -958,12 +879,6 @@
       }
       // Remove Member Status button is never shown (legacy, not needed)
     }
-    memberGateLabel.textContent = unlocked ? 'Orchestra Member Access Unlocked' : (pending ? 'Member Approval Pending' : 'Orchestra Member Access Locked');
-    memberGateCopy.textContent = unlocked
-      ? 'Your member registration is active. Instrument and section details are now available on this profile.'
-      : (pending
-        ? 'Your registration request is waiting for admin approval. Member-only features stay locked until an orchestra admin confirms your membership.'
-        : 'Submit your name, email, instrument, and section to request orchestra membership. Member-only tools stay locked until an admin approves the request.');
   }
 
   async function fetchRecommendedConcerts() {
