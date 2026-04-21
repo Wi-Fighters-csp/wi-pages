@@ -143,6 +143,45 @@
         </div>
       </section>
 
+      <section class="pso-profile-card pso-admin-chat-panel">
+        <div class="pso-admin-requests-head">
+          <div>
+            <h3>Member And User Chats</h3>
+            <p class="pso-signin-section-copy">
+              Open any existing conversation with an applicant, registered member, or signed-in user and reply directly from the admin dashboard.
+            </p>
+          </div>
+          <span class="pso-profile-role-pill">Admin Chat</span>
+        </div>
+
+        <div class="pso-admin-chat-grid">
+          <div class="pso-admin-chat-directory" id="pso-admin-chat-directory">
+            <article class="pso-admin-request-card is-empty">
+              <strong>Loading chats...</strong>
+              <p>User and member conversations will appear here when messages exist.</p>
+            </article>
+          </div>
+
+          <div class="pso-admin-chat-thread-panel">
+            <div class="pso-admin-chat-thread-head">
+              <div>
+                <strong id="pso-admin-chat-participant">Select a conversation</strong>
+                <p class="pso-signin-section-copy" id="pso-admin-chat-meta">Choose a user or member on the left to view the thread.</p>
+              </div>
+            </div>
+
+            <div class="pso-chat-window" id="pso-admin-chat-messages">
+              <p class="pso-chat-empty">No chat selected.</p>
+            </div>
+
+            <div class="pso-chat-compose">
+              <textarea id="pso-admin-chat-input" placeholder="Reply to this user or member..."></textarea>
+              <button class="pso-button pso-button-primary" id="pso-admin-chat-send" type="button">Send Reply</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="pso-profile-card pso-admin-member-card-panel">
         <div class="pso-admin-requests-head">
           <div>
@@ -237,6 +276,12 @@
   const rejectedCount = document.getElementById('pso-admin-rejected-count');
   const totalCount = document.getElementById('pso-admin-total-count');
   const requestList = document.getElementById('pso-admin-request-list');
+  const chatDirectory = document.getElementById('pso-admin-chat-directory');
+  const adminChatParticipant = document.getElementById('pso-admin-chat-participant');
+  const adminChatMeta = document.getElementById('pso-admin-chat-meta');
+  const adminChatMessages = document.getElementById('pso-admin-chat-messages');
+  const adminChatInput = document.getElementById('pso-admin-chat-input');
+  const adminChatSend = document.getElementById('pso-admin-chat-send');
   const filterButtons = Array.from(document.querySelectorAll('[data-request-filter]'));
   const memberCardRequest = document.getElementById('pso-member-card-request');
   const memberCardOwnerUid = document.getElementById('pso-member-card-owner-uid');
@@ -247,9 +292,11 @@
   const memberCardSave = document.getElementById('pso-member-card-save');
   const memberCardReset = document.getElementById('pso-member-card-reset');
   const memberCardStatus = document.getElementById('pso-member-card-status');
+  const STORAGE_THREADS = 'pso_membership_threads_v1';
   let currentFilter = 'pending';
   let allRequests = [];
   let currentUser = null;
+  let selectedChatUid = '';
 
   const rosterSectionOptions = {
     strings: [
@@ -297,6 +344,15 @@
     memberCardStatus.textContent = text;
   }
 
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function initialsFromName(name) {
     return String(name || 'Admin')
       .split(/\s+/)
@@ -310,6 +366,177 @@
     if (!user) return false;
     if (user.is_admin === true) return true;
     return ['admin', 'superadmin'].indexOf(String(user.role || '').toLowerCase()) !== -1;
+  }
+
+  function loadThreads() {
+    try {
+      return JSON.parse(window.localStorage.getItem(STORAGE_THREADS) || '[]');
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function saveThreads(value) {
+    window.localStorage.setItem(STORAGE_THREADS, JSON.stringify(value));
+  }
+
+  function updateThreadForUid(uid, updater) {
+    const threads = loadThreads();
+    let index = threads.findIndex((entry) => String(entry.uid) === String(uid));
+
+    if (index === -1) {
+      threads.push({ uid: uid, messages: [] });
+      index = threads.length - 1;
+    }
+
+    threads[index] = updater(threads[index]);
+    saveThreads(threads);
+  }
+
+  function getRequestForUid(uid) {
+    return allRequests.find((request) => String(request.uid) === String(uid)) || null;
+  }
+
+  function latestThreadTimestamp(thread) {
+    const messages = thread && Array.isArray(thread.messages) ? thread.messages : [];
+    if (!messages.length) return 0;
+    const latest = messages[messages.length - 1];
+    const parsed = Date.parse(latest.createdAt || '');
+    return Number.isNaN(parsed) ? messages.length : parsed;
+  }
+
+  function buildChatEntries() {
+    const threads = loadThreads();
+    const entriesByUid = new Map();
+
+    allRequests.forEach((request) => {
+      if (!request || !request.uid) return;
+      entriesByUid.set(String(request.uid), {
+        uid: String(request.uid),
+        name: request.name || request.uid,
+        instrument: request.instrument || '',
+        status: request.status || 'user',
+        requestId: request.id,
+        thread: threads.find((thread) => String(thread.uid) === String(request.uid)) || { uid: request.uid, messages: [] }
+      });
+    });
+
+    threads.forEach((thread) => {
+      const uid = String(thread.uid || '');
+      if (!uid) return;
+      const existing = entriesByUid.get(uid);
+      if (existing) {
+        existing.thread = thread;
+        return;
+      }
+      entriesByUid.set(uid, {
+        uid: uid,
+        name: uid,
+        instrument: '',
+        status: 'chat-only',
+        requestId: '',
+        thread: thread
+      });
+    });
+
+    return Array.from(entriesByUid.values()).sort((left, right) => latestThreadTimestamp(right.thread) - latestThreadTimestamp(left.thread));
+  }
+
+  function renderChatMessages(messages) {
+    if (!adminChatMessages) return;
+
+    if (!messages || !messages.length) {
+      adminChatMessages.innerHTML = '<p class="pso-chat-empty">No messages yet.</p>';
+      return;
+    }
+
+    adminChatMessages.innerHTML = messages.map((message) => {
+      return '<div class="pso-chat-message ' + escapeHtml(message.senderRole) + '">' +
+        '<strong>' + escapeHtml(message.senderName) + '</strong>' +
+        '<div>' + escapeHtml(message.text) + '</div>' +
+        '<small>' + escapeHtml(message.createdAt) + '</small>' +
+      '</div>';
+    }).join('');
+
+    adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
+  }
+
+  function renderSelectedChat(entries) {
+    if (!selectedChatUid && entries.length) {
+      selectedChatUid = entries[0].uid;
+    }
+
+    const activeEntry = entries.find((entry) => String(entry.uid) === String(selectedChatUid));
+    if (!activeEntry) {
+      adminChatParticipant.textContent = 'Select a conversation';
+      adminChatMeta.textContent = 'Choose a user or member on the left to view the thread.';
+      renderChatMessages([]);
+      return;
+    }
+
+    const request = getRequestForUid(activeEntry.uid);
+    const metaParts = [activeEntry.uid];
+    if (request && request.status) metaParts.push('Status: ' + request.status);
+    if (request && request.instrument) metaParts.push(request.instrument);
+    if (!request && activeEntry.status === 'chat-only') metaParts.push('Chat only');
+
+    adminChatParticipant.textContent = activeEntry.name || activeEntry.uid;
+    adminChatMeta.textContent = metaParts.join(' • ');
+    renderChatMessages(activeEntry.thread.messages || []);
+  }
+
+  function renderChatDirectory() {
+    const entries = buildChatEntries();
+
+    if (!entries.length) {
+      chatDirectory.innerHTML = '<article class="pso-admin-request-card is-empty"><strong>No chats yet.</strong><p>Chats appear here once a user or member starts a conversation.</p></article>';
+      selectedChatUid = '';
+      renderSelectedChat([]);
+      return;
+    }
+
+    chatDirectory.innerHTML = entries.map((entry) => {
+      const isActive = String(entry.uid) === String(selectedChatUid);
+      const latestMessage = entry.thread && entry.thread.messages && entry.thread.messages.length
+        ? entry.thread.messages[entry.thread.messages.length - 1]
+        : null;
+      const preview = latestMessage ? latestMessage.text : 'No messages yet.';
+      const status = entry.status === 'chat-only' ? 'chat-only' : (entry.status || 'user');
+      const statusLabel = status === 'chat-only' ? 'Direct chat' : status;
+      return '<button class="pso-admin-chat-entry' + (isActive ? ' is-active' : '') + '" type="button" data-chat-uid="' + escapeHtml(entry.uid) + '">' +
+        '<div class="pso-admin-chat-entry-head">' +
+          '<strong>' + escapeHtml(entry.name || entry.uid) + '</strong>' +
+          '<span class="pso-profile-role-pill pso-admin-status-pill is-' + escapeHtml(status) + '">' + escapeHtml(statusLabel) + '</span>' +
+        '</div>' +
+        '<span class="pso-admin-chat-entry-meta">' + escapeHtml(entry.uid) + (entry.instrument ? ' • ' + escapeHtml(entry.instrument) : '') + '</span>' +
+        '<p>' + escapeHtml(preview) + '</p>' +
+      '</button>';
+    }).join('');
+
+    renderSelectedChat(entries);
+  }
+
+  function sendAdminChatMessage() {
+    if (!currentUser || !selectedChatUid) {
+      setMessage('error', 'Select a user or member chat first.');
+      return;
+    }
+
+    const text = (adminChatInput.value || '').trim();
+    if (!text) return;
+
+    updateThreadForUid(selectedChatUid, (thread) => {
+      thread.messages.push({
+        senderRole: 'admin',
+        senderName: currentUser.name || currentUser.uid || 'Admin',
+        text: text,
+        createdAt: new Date().toLocaleString()
+      });
+      return thread;
+    });
+
+    adminChatInput.value = '';
+    renderChatDirectory();
   }
 
   function normalizeMemberCard(card) {
@@ -488,6 +715,8 @@
         requestActionButtons(request) + memberCardButton +
         '</article>';
     }).join('');
+
+    renderChatDirectory();
   }
 
   async function loadRequests() {
@@ -609,6 +838,13 @@
     }
   });
 
+  chatDirectory.addEventListener('click', (event) => {
+    const trigger = event.target.closest('[data-chat-uid]');
+    if (!trigger) return;
+    selectedChatUid = trigger.dataset.chatUid || '';
+    renderChatDirectory();
+  });
+
   memberCardRequest.addEventListener('change', () => {
     const request = allRequests.find((entry) => String(entry.id) === String(memberCardRequest.value));
     if (!request) {
@@ -662,6 +898,17 @@
     resetMemberCardForm();
   });
 
+  adminChatSend.addEventListener('click', () => {
+    sendAdminChatMessage();
+  });
+
+  adminChatInput.addEventListener('keydown', (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+      event.preventDefault();
+      sendAdminChatMessage();
+    }
+  });
+
   adminLogout.addEventListener('click', async () => {
     adminLogout.disabled = true;
     try {
@@ -685,5 +932,6 @@
   setFilterButtons(currentFilter);
   setAccountLinks(null);
   renderRosterSectionOptions('', '');
+  renderChatDirectory();
   loadDashboard();
 </script>
