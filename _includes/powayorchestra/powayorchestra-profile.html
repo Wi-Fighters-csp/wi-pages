@@ -103,7 +103,7 @@
 
           <div class="pso-profile-inline-actions">
             <button class="pso-button pso-button-primary" id="pso-profile-save" type="button">Save Profile Notes</button>
-            <a class="pso-button pso-button-secondary" href="{{ '/powayorchestra/membership/' | relative_url }}">Open Membership Hub</a>
+            <a class="pso-button pso-button-secondary" id="pso-profile-membership-link" href="{{ '/powayorchestra/membership/' | relative_url }}">Open Membership Hub</a>
             <a class="pso-button pso-button-secondary" id="pso-admin-dashboard-link" href="{{ '/powayorchestra/admin/' | relative_url }}" hidden>Open Admin Dashboard</a>
             <span class="pso-profile-note">Your bio syncs to your account when available. Other profile extras stay on this device.</span>
           </div>
@@ -265,6 +265,26 @@
       </div>
     </div>
   </section>
+
+  <div class="pso-profile-chat-modal" id="pso-profile-chat-modal" hidden>
+    <div class="pso-profile-chat-backdrop" id="pso-profile-chat-backdrop"></div>
+    <section class="pso-profile-chat-dialog" aria-modal="true" aria-labelledby="pso-profile-chat-title" role="dialog">
+      <div class="pso-profile-chat-head">
+        <div>
+          <h3 id="pso-profile-chat-title">Chat With Admin</h3>
+          <p class="pso-signin-section-copy">Your membership thread opens here without taking you back to the membership hub.</p>
+        </div>
+        <button class="pso-button pso-button-secondary" id="pso-profile-chat-close" type="button">Close</button>
+      </div>
+
+      <div class="pso-chat-window" id="pso-profile-chat-messages"></div>
+
+      <div class="pso-chat-compose">
+        <textarea id="pso-profile-chat-input" placeholder="Write a message to admin..."></textarea>
+        <button class="pso-button pso-button-primary" id="pso-profile-chat-send" type="button">Send</button>
+      </div>
+    </section>
+  </div>
 </div>
 
 <script src="{{ '/assets/js/capstones/powayorchestra/progression.js' | relative_url }}"></script>
@@ -287,6 +307,7 @@
   const profileAvatar = document.getElementById('pso-profile-avatar');
   const profileMessage = document.getElementById('pso-profile-message');
   const profileSaveButton = document.getElementById('pso-profile-save');
+  const membershipActionLink = document.getElementById('pso-profile-membership-link');
   const adminDashboardLink = document.getElementById('pso-admin-dashboard-link');
   const logoutButton = document.getElementById('pso-profile-logout');
   const sidePanelTitle = document.getElementById('pso-side-panel-title');
@@ -329,11 +350,19 @@
   const memberCardImage = document.getElementById('pso-member-card-image');
   const memberCardBio = document.getElementById('pso-member-card-bio');
   const memberCardSaveButton = document.getElementById('pso-member-card-save');
+  const profileChatModal = document.getElementById('pso-profile-chat-modal');
+  const profileChatBackdrop = document.getElementById('pso-profile-chat-backdrop');
+  const profileChatClose = document.getElementById('pso-profile-chat-close');
+  const profileChatMessages = document.getElementById('pso-profile-chat-messages');
+  const profileChatInput = document.getElementById('pso-profile-chat-input');
+  const profileChatSend = document.getElementById('pso-profile-chat-send');
   const memberOnlyElements = Array.from(document.querySelectorAll('[data-member-only]'));
   const memberPanels = Array.from(document.querySelectorAll('[data-member-panel]'));
   const summaryGrid = document.getElementById('pso-profile-summary-grid');
   const experienceGrid = document.getElementById('pso-profile-experience-grid');
   const concertsCard = document.getElementById('pso-concerts-card');
+  const membershipHubUrl = "{{ '/powayorchestra/membership/' | relative_url }}";
+  const membershipThreadStorageKey = 'pso_membership_threads_v1';
   var currentUser = null;
   var currentMemberCard = null;
   var favoriteState = {
@@ -506,6 +535,117 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  }
+
+  function loadMembershipThreads() {
+    try {
+      return JSON.parse(window.localStorage.getItem(membershipThreadStorageKey) || '[]');
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function saveMembershipThreads(value) {
+    window.localStorage.setItem(membershipThreadStorageKey, JSON.stringify(value));
+  }
+
+  function getMembershipThreadForUid(uid) {
+    var threads = loadMembershipThreads();
+    var thread = threads.find((entry) => String(entry.uid) === String(uid));
+    if (thread) return thread;
+    thread = { uid: uid, messages: [] };
+    threads.push(thread);
+    saveMembershipThreads(threads);
+    return thread;
+  }
+
+  function updateMembershipThreadForUid(uid, updater) {
+    var threads = loadMembershipThreads();
+    var index = threads.findIndex((entry) => String(entry.uid) === String(uid));
+
+    if (index === -1) {
+      threads.push({ uid: uid, messages: [] });
+      index = threads.length - 1;
+    }
+
+    threads[index] = updater(threads[index]);
+    saveMembershipThreads(threads);
+  }
+
+  function renderProfileChatMessages(messages) {
+    if (!profileChatMessages) return;
+
+    if (!messages || !messages.length) {
+      profileChatMessages.innerHTML = '<p class="pso-chat-empty">No messages yet.</p>';
+      return;
+    }
+
+    profileChatMessages.innerHTML = messages.map((message) => {
+      return '<div class="pso-chat-message ' + escapeHtml(message.senderRole) + '">' +
+        '<strong>' + escapeHtml(message.senderName) + '</strong>' +
+        '<div>' + escapeHtml(message.text) + '</div>' +
+        '<small>' + escapeHtml(message.createdAt) + '</small>' +
+      '</div>';
+    }).join('');
+
+    profileChatMessages.scrollTop = profileChatMessages.scrollHeight;
+  }
+
+  function renderProfileChatThread() {
+    if (!currentUser) {
+      renderProfileChatMessages([]);
+      return;
+    }
+
+    var thread = getMembershipThreadForUid(currentUser.uid);
+    renderProfileChatMessages(thread.messages);
+  }
+
+  function openProfileChatModal() {
+    if (!profileChatModal || !currentUser) return;
+    renderProfileChatThread();
+    profileChatModal.hidden = false;
+    document.body.classList.add('pso-chat-modal-open');
+    if (profileChatInput) profileChatInput.focus();
+  }
+
+  function closeProfileChatModal() {
+    if (!profileChatModal) return;
+    profileChatModal.hidden = true;
+    document.body.classList.remove('pso-chat-modal-open');
+  }
+
+  function sendProfileChatMessage() {
+    if (!currentUser || !profileChatInput) return;
+    var text = profileChatInput.value.trim();
+    if (!text) return;
+
+    updateMembershipThreadForUid(currentUser.uid, (thread) => {
+      thread.messages.push({
+        senderRole: 'user',
+        senderName: currentUser.name || currentUser.uid || 'Member',
+        text: text,
+        createdAt: new Date().toLocaleString()
+      });
+      return thread;
+    });
+
+    profileChatInput.value = '';
+    renderProfileChatThread();
+  }
+
+  function updateMembershipAction(profile) {
+    if (!membershipActionLink) return;
+
+    if (isRegisteredMember(profile) && !isAdminUser(currentUser)) {
+      membershipActionLink.textContent = 'Open Chat With Admin';
+      membershipActionLink.href = '#';
+      membershipActionLink.setAttribute('aria-haspopup', 'dialog');
+    } else {
+      membershipActionLink.textContent = 'Open Membership Hub';
+      membershipActionLink.href = membershipHubUrl;
+      membershipActionLink.removeAttribute('aria-haspopup');
+    }
   }
 
   async function fetchMemberCards() {
@@ -836,6 +976,7 @@
     applyFavoriteState(profile);
     instrumentsField.value = profile.instruments || '';
     sectionField.value = profile.section || '';
+    updateMembershipAction(profile);
     renderMemberAccess(profile);
     renderStats(profile);
     renderTimeline(profile);
@@ -1223,6 +1364,48 @@
     } catch (error) {
       setMessage('error', error.message);
       logoutButton.disabled = false;
+    }
+  });
+
+  if (membershipActionLink) {
+    membershipActionLink.addEventListener('click', (event) => {
+      var profile = currentUser ? loadLocalProfile(currentUser) : null;
+      if (!currentUser || !isRegisteredMember(profile) || isAdminUser(currentUser)) {
+        return;
+      }
+      event.preventDefault();
+      openProfileChatModal();
+    });
+  }
+
+  if (profileChatBackdrop) {
+    profileChatBackdrop.addEventListener('click', closeProfileChatModal);
+  }
+
+  if (profileChatClose) {
+    profileChatClose.addEventListener('click', closeProfileChatModal);
+  }
+
+  if (profileChatSend) {
+    profileChatSend.addEventListener('click', sendProfileChatMessage);
+  }
+
+  if (profileChatInput) {
+    profileChatInput.addEventListener('keydown', (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+        event.preventDefault();
+        sendProfileChatMessage();
+      }
+      if (event.key === 'Escape' && profileChatModal && !profileChatModal.hidden) {
+        event.preventDefault();
+        closeProfileChatModal();
+      }
+    });
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && profileChatModal && !profileChatModal.hidden) {
+      closeProfileChatModal();
     }
   });
 

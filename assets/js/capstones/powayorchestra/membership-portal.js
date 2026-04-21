@@ -96,9 +96,47 @@
   function isApprovedMember(user) {
     if (!user) return false;
     var role = String(user.role || "").toLowerCase();
+    if (user.is_member === true) return true;
     if (role === "member" || role === "admin" || role === "superadmin") return true;
     var request = getRequestForUid(user.uid);
     return Boolean(request && request.status === "approved");
+  }
+
+  function loadServerMembershipState(user) {
+    if (!user) {
+      return Promise.resolve(null);
+    }
+
+    return fetch(pythonURI + "/api/pso/member-request/status", {
+      method: "GET",
+      mode: "cors",
+      cache: "default",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Origin": "client"
+      }
+    })
+      .then(function (response) {
+        if (!response.ok) return null;
+        return response.json();
+      })
+      .then(function (data) {
+        if (!data) return user;
+
+        if (data.is_member === true) {
+          user.is_member = true;
+        }
+
+        if (data.member_request_status) {
+          user.member_request_status = data.member_request_status;
+        }
+
+        return user;
+      })
+      .catch(function () {
+        return user;
+      });
   }
 
   function getEffectiveRole(user) {
@@ -582,7 +620,10 @@
       })
       .then(function (data) {
         currentUser = data && data.uid ? data : null;
-        renderAll();
+        return loadServerMembershipState(currentUser).then(function (resolvedUser) {
+          currentUser = resolvedUser && resolvedUser.uid ? resolvedUser : currentUser;
+          renderAll();
+        });
       })
       .catch(function () {
         currentUser = null;
