@@ -15,8 +15,8 @@
     <main class="pso-membership-shell">
       <section class="pso-membership-hero">
         <p class="pso-membership-eyebrow">Poway Symphony Orchestra</p>
-        <h1>Apply to Join the Orchestra</h1>
-        <p class="pso-membership-subtitle">
+        <h1 id="pso-membership-title">Apply to Join the Orchestra</h1>
+        <p class="pso-membership-subtitle" id="pso-membership-subtitle">
           Submit an audition or interview request, share your musical background, and connect directly with the orchestra team.
         </p>
       </section>
@@ -58,12 +58,23 @@
             <h3>Your Account</h3>
             <p id="pso-membership-current-user">Checking sign-in status...</p>
             <p id="pso-membership-current-role">Loading role...</p>
-            <a class="pso-button pso-button-secondary" href="{{ '/powayorchestra/signin/' | relative_url }}">Go to Sign In</a>
+            <a class="pso-button pso-button-secondary" id="pso-membership-signin-link" href="{{ '/powayorchestra/signin/' | relative_url }}">Go to Sign In</a>
           </div>
         </aside>
 
-        <article class="pso-membership-card pso-membership-form-card">
+        <article class="pso-membership-card pso-membership-form-card" id="pso-membership-form-card">
+          <div id="pso-membership-admin-note" hidden>
+            <p class="pso-auth-message">
+              Admin accounts are already orchestra members and do not need to submit a membership request.
+            </p>
+          </div>
+
           <div class="pso-membership-card-head">
+            <div id="pso-membership-admin-note" hidden>
+              <p class="pso-auth-message">
+                Admin accounts are already orchestra members and do not need to submit a membership request.
+              </p>
+            </div>
             <div>
               <p class="pso-membership-mini-label">Application Form</p>
               <h2>Interview / Audition Request</h2>

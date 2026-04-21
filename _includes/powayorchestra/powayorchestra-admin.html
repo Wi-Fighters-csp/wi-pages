@@ -256,6 +256,7 @@
   } else {
     pythonURI = "https://wifighters.opencodingsociety.com";
   }
+
   const signInUrl = "{{ '/powayorchestra/signin/' | relative_url }}";
   const profileUrl = "{{ '/powayorchestra/profile/' | relative_url }}";
   const accountLinks = Array.from(document.querySelectorAll('[data-pso-account-link]'));
@@ -271,10 +272,12 @@
   const adminRole = document.getElementById('pso-admin-role');
   const adminMessage = document.getElementById('pso-admin-message');
   const adminLogout = document.getElementById('pso-admin-logout');
+
   const pendingCount = document.getElementById('pso-admin-pending-count');
   const approvedCount = document.getElementById('pso-admin-approved-count');
   const rejectedCount = document.getElementById('pso-admin-rejected-count');
   const totalCount = document.getElementById('pso-admin-total-count');
+
   const requestList = document.getElementById('pso-admin-request-list');
   const chatDirectory = document.getElementById('pso-admin-chat-directory');
   const adminChatParticipant = document.getElementById('pso-admin-chat-participant');
@@ -282,7 +285,9 @@
   const adminChatMessages = document.getElementById('pso-admin-chat-messages');
   const adminChatInput = document.getElementById('pso-admin-chat-input');
   const adminChatSend = document.getElementById('pso-admin-chat-send');
+
   const filterButtons = Array.from(document.querySelectorAll('[data-request-filter]'));
+
   const memberCardRequest = document.getElementById('pso-member-card-request');
   const memberCardOwnerUid = document.getElementById('pso-member-card-owner-uid');
   const memberCardOwnerName = document.getElementById('pso-member-card-owner-name');
@@ -292,11 +297,12 @@
   const memberCardSave = document.getElementById('pso-member-card-save');
   const memberCardReset = document.getElementById('pso-member-card-reset');
   const memberCardStatus = document.getElementById('pso-member-card-status');
-  const STORAGE_THREADS = 'pso_membership_threads_v1';
+
   let currentFilter = 'pending';
   let allRequests = [];
   let currentUser = null;
   let selectedChatUid = '';
+  let allChatThreads = [];
 
   const rosterSectionOptions = {
     strings: [
@@ -365,240 +371,47 @@
   function isAdminUser(user) {
     if (!user) return false;
     if (user.is_admin === true) return true;
-    return ['admin', 'superadmin'].indexOf(String(user.role || '').toLowerCase()) !== -1;
+    return ['admin', 'superadmin'].includes(String(user.role || '').toLowerCase());
   }
 
-  function loadThreads() {
-    try {
-      return JSON.parse(window.localStorage.getItem(STORAGE_THREADS) || '[]');
-    } catch (error) {
-      return [];
-    }
+  function approvedRequests() {
+    return allRequests.filter((request) => request.status === 'approved');
   }
 
-  function saveThreads(value) {
-    window.localStorage.setItem(STORAGE_THREADS, JSON.stringify(value));
-  }
+  function inferFamilyAndSection(instrument, section) {
+    const instrumentText = String(instrument || '').toLowerCase();
+    const sectionText = String(section || '').toLowerCase();
 
-  function updateThreadForUid(uid, updater) {
-    const threads = loadThreads();
-    let index = threads.findIndex((entry) => String(entry.uid) === String(uid));
-
-    if (index === -1) {
-      threads.push({ uid: uid, messages: [] });
-      index = threads.length - 1;
+    if (sectionText.includes('string') || ['violin', 'viola', 'cello', 'bass'].some((item) => instrumentText.includes(item))) {
+      if (instrumentText.includes('violin')) return { family: 'strings', sectionId: 'violinists' };
+      if (instrumentText.includes('viola')) return { family: 'strings', sectionId: 'violists' };
+      if (instrumentText.includes('cello')) return { family: 'strings', sectionId: 'cellists' };
+      if (instrumentText.includes('bass')) return { family: 'strings', sectionId: 'bassists' };
+      return { family: 'strings', sectionId: '' };
     }
 
-    threads[index] = updater(threads[index]);
-    saveThreads(threads);
-  }
-
-  function getRequestForUid(uid) {
-    return allRequests.find((request) => String(request.uid) === String(uid)) || null;
-  }
-
-  function latestThreadTimestamp(thread) {
-    const messages = thread && Array.isArray(thread.messages) ? thread.messages : [];
-    if (!messages.length) return 0;
-    const latest = messages[messages.length - 1];
-    const parsed = Date.parse(latest.createdAt || '');
-    return Number.isNaN(parsed) ? messages.length : parsed;
-  }
-
-  function buildChatEntries() {
-    const threads = loadThreads();
-    const entriesByUid = new Map();
-
-    allRequests.forEach((request) => {
-      if (!request || !request.uid) return;
-      entriesByUid.set(String(request.uid), {
-        uid: String(request.uid),
-        name: request.name || request.uid,
-        instrument: request.instrument || '',
-        status: request.status || 'user',
-        requestId: request.id,
-        thread: threads.find((thread) => String(thread.uid) === String(request.uid)) || { uid: request.uid, messages: [] }
-      });
-    });
-
-    threads.forEach((thread) => {
-      const uid = String(thread.uid || '');
-      if (!uid) return;
-      const existing = entriesByUid.get(uid);
-      if (existing) {
-        existing.thread = thread;
-        return;
-      }
-      entriesByUid.set(uid, {
-        uid: uid,
-        name: uid,
-        instrument: '',
-        status: 'chat-only',
-        requestId: '',
-        thread: thread
-      });
-    });
-
-    return Array.from(entriesByUid.values()).sort((left, right) => latestThreadTimestamp(right.thread) - latestThreadTimestamp(left.thread));
-  }
-
-  function renderChatMessages(messages) {
-    if (!adminChatMessages) return;
-
-    if (!messages || !messages.length) {
-      adminChatMessages.innerHTML = '<p class="pso-chat-empty">No messages yet.</p>';
-      return;
+    if (sectionText.includes('woodwind') || ['flute', 'oboe', 'clarinet', 'bassoon'].some((item) => instrumentText.includes(item))) {
+      if (instrumentText.includes('flute')) return { family: 'woodwinds', sectionId: 'flutists' };
+      if (instrumentText.includes('oboe')) return { family: 'woodwinds', sectionId: 'oboists' };
+      if (instrumentText.includes('clarinet')) return { family: 'woodwinds', sectionId: 'clarinetists' };
+      if (instrumentText.includes('bassoon')) return { family: 'woodwinds', sectionId: 'bassoonists' };
+      return { family: 'woodwinds', sectionId: '' };
     }
 
-    adminChatMessages.innerHTML = messages.map((message) => {
-      return '<div class="pso-chat-message ' + escapeHtml(message.senderRole) + '">' +
-        '<strong>' + escapeHtml(message.senderName) + '</strong>' +
-        '<div>' + escapeHtml(message.text) + '</div>' +
-        '<small>' + escapeHtml(message.createdAt) + '</small>' +
-      '</div>';
-    }).join('');
-
-    adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
-  }
-
-  function renderSelectedChat(entries) {
-    if (!selectedChatUid && entries.length) {
-      selectedChatUid = entries[0].uid;
+    if (sectionText.includes('brass') || ['trumpet', 'horn', 'trombone', 'tuba'].some((item) => instrumentText.includes(item))) {
+      if (instrumentText.includes('trumpet')) return { family: 'brass', sectionId: 'trumpeters' };
+      if (instrumentText.includes('horn')) return { family: 'brass', sectionId: 'horn-players' };
+      if (instrumentText.includes('trombone')) return { family: 'brass', sectionId: 'trombonists' };
+      if (instrumentText.includes('tuba')) return { family: 'brass', sectionId: 'tubists' };
+      return { family: 'brass', sectionId: '' };
     }
 
-    const activeEntry = entries.find((entry) => String(entry.uid) === String(selectedChatUid));
-    if (!activeEntry) {
-      adminChatParticipant.textContent = 'Select a conversation';
-      adminChatMeta.textContent = 'Choose a user or member on the left to view the thread.';
-      renderChatMessages([]);
-      return;
+    if (sectionText.includes('percussion') || instrumentText.includes('percussion') || instrumentText.includes('timpani')) {
+      if (instrumentText.includes('timpani')) return { family: 'percussion', sectionId: 'timpanists' };
+      return { family: 'percussion', sectionId: 'percussionists' };
     }
 
-    const request = getRequestForUid(activeEntry.uid);
-    const metaParts = [activeEntry.uid];
-    if (request && request.status) metaParts.push('Status: ' + request.status);
-    if (request && request.instrument) metaParts.push(request.instrument);
-    if (!request && activeEntry.status === 'chat-only') metaParts.push('Chat only');
-
-    adminChatParticipant.textContent = activeEntry.name || activeEntry.uid;
-    adminChatMeta.textContent = metaParts.join(' • ');
-    renderChatMessages(activeEntry.thread.messages || []);
-  }
-
-  function renderChatDirectory() {
-    const entries = buildChatEntries();
-
-    if (!entries.length) {
-      chatDirectory.innerHTML = '<article class="pso-admin-request-card is-empty"><strong>No chats yet.</strong><p>Chats appear here once a user or member starts a conversation.</p></article>';
-      selectedChatUid = '';
-      renderSelectedChat([]);
-      return;
-    }
-
-    chatDirectory.innerHTML = entries.map((entry) => {
-      const isActive = String(entry.uid) === String(selectedChatUid);
-      const latestMessage = entry.thread && entry.thread.messages && entry.thread.messages.length
-        ? entry.thread.messages[entry.thread.messages.length - 1]
-        : null;
-      const preview = latestMessage ? latestMessage.text : 'No messages yet.';
-      const status = entry.status === 'chat-only' ? 'chat-only' : (entry.status || 'user');
-      const statusLabel = status === 'chat-only' ? 'Direct chat' : status;
-      return '<button class="pso-admin-chat-entry' + (isActive ? ' is-active' : '') + '" type="button" data-chat-uid="' + escapeHtml(entry.uid) + '">' +
-        '<div class="pso-admin-chat-entry-head">' +
-          '<strong>' + escapeHtml(entry.name || entry.uid) + '</strong>' +
-          '<span class="pso-profile-role-pill pso-admin-status-pill is-' + escapeHtml(status) + '">' + escapeHtml(statusLabel) + '</span>' +
-        '</div>' +
-        '<span class="pso-admin-chat-entry-meta">' + escapeHtml(entry.uid) + (entry.instrument ? ' • ' + escapeHtml(entry.instrument) : '') + '</span>' +
-        '<p>' + escapeHtml(preview) + '</p>' +
-      '</button>';
-    }).join('');
-
-    renderSelectedChat(entries);
-  }
-
-  function sendAdminChatMessage() {
-    if (!currentUser || !selectedChatUid) {
-      setMessage('error', 'Select a user or member chat first.');
-      return;
-    }
-
-    const text = (adminChatInput.value || '').trim();
-    if (!text) return;
-
-    updateThreadForUid(selectedChatUid, (thread) => {
-      thread.messages.push({
-        senderRole: 'admin',
-        senderName: currentUser.name || currentUser.uid || 'Admin',
-        text: text,
-        createdAt: new Date().toLocaleString()
-      });
-      return thread;
-    });
-
-    adminChatInput.value = '';
-    renderChatDirectory();
-  }
-
-  function normalizeMemberCard(card) {
-    return {
-      id: String(card && (card.id || card.card_id) || ''),
-      ownerUid: String(card && (card.owner_uid || card.ownerUid) || ''),
-      ownerName: String(card && (card.owner_name || card.ownerName) || ''),
-      family: String(card && card.family || ''),
-      sectionId: String(card && (card.section_id || card.sectionId) || ''),
-      instrumentTitle: String(card && (card.instrument_title || card.instrumentTitle) || ''),
-      image: String(card && (card.image_url || card.image) || ''),
-      bio: String(card && card.bio || ''),
-      updatedAt: String(card && (card.updated_at || card.updatedAt) || '')
-    };
-  }
-
-  async function createMemberCard(cardInput) {
-    const response = await fetch(`${pythonURI}/api/pso/admin/member-cards`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        owner_uid: cardInput.ownerUid,
-        owner_name: cardInput.ownerName,
-        family: cardInput.family,
-        section_id: cardInput.sectionId,
-        instrument_title: cardInput.instrumentTitle || '',
-        image_url: cardInput.imageUrl || '',
-        bio: cardInput.bio || ''
-      })
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to create member card');
-    }
-
-    return normalizeMemberCard(data.card || {});
-  }
-
-  function inferFamilyAndSection(instrument, fallbackFamily) {
-    const normalized = String(instrument || '').toLowerCase();
-    const family = fallbackFamily || '';
-
-    if (/bass/.test(normalized)) return { family: family || 'strings', sectionId: 'bassists' };
-    if (/cello/.test(normalized)) return { family: family || 'strings', sectionId: 'cellists' };
-    if (/viola/.test(normalized)) return { family: family || 'strings', sectionId: 'violists' };
-    if (/violin/.test(normalized)) return { family: family || 'strings', sectionId: 'violinists' };
-    if (/flute|piccolo/.test(normalized)) return { family: family || 'woodwinds', sectionId: 'flutists' };
-    if (/oboe|english horn/.test(normalized)) return { family: family || 'woodwinds', sectionId: 'oboists' };
-    if (/clarinet/.test(normalized)) return { family: family || 'woodwinds', sectionId: 'clarinetists' };
-    if (/bassoon/.test(normalized)) return { family: family || 'woodwinds', sectionId: 'bassoonists' };
-    if (/trumpet/.test(normalized)) return { family: family || 'brass', sectionId: 'trumpeters' };
-    if (/horn/.test(normalized)) return { family: family || 'brass', sectionId: 'horn-players' };
-    if (/trombone/.test(normalized)) return { family: family || 'brass', sectionId: 'trombonists' };
-    if (/tuba/.test(normalized)) return { family: family || 'brass', sectionId: 'tubists' };
-    if (/timpani/.test(normalized)) return { family: family || 'percussion', sectionId: 'timpanists' };
-    if (/percussion|drum|cymbal|mallet/.test(normalized)) return { family: family || 'percussion', sectionId: 'percussionists' };
-
-    return { family: family || '', sectionId: '' };
+    return { family: '', sectionId: '' };
   }
 
   function renderRosterSectionOptions(family, selectedValue) {
@@ -607,10 +420,6 @@
       const selected = option.value === selectedValue ? ' selected' : '';
       return `<option value="${option.value}"${selected}>${option.label}</option>`;
     }).join('');
-  }
-
-  function approvedRequests() {
-    return allRequests.filter((request) => request.status === 'approved');
   }
 
   function fillMemberCardFormFromRequest(request) {
@@ -627,7 +436,7 @@
   function renderApprovedMemberOptions() {
     const approved = approvedRequests();
     memberCardRequest.innerHTML = '<option value="">Choose an approved member</option>' + approved.map((request) => {
-      return `<option value="${request.id}">${request.name} · ${request.instrument}</option>`;
+      return `<option value="${request.id}">${escapeHtml(request.name)} · ${escapeHtml(request.instrument)}</option>`;
     }).join('');
   }
 
@@ -698,25 +507,28 @@
       const memberCardButton = request.status === 'approved'
         ? `<button class="pso-button pso-button-secondary" data-request-card-create="${request.id}" type="button">Create Member Card</button>`
         : '';
+      const emailValue = escapeHtml(request.email || '');
+      const emailMarkup = request.email
+        ? `<a href="mailto:${emailValue}" class="pso-admin-email-link">${emailValue}</a>`
+        : '--';
+
       return '<article class="pso-admin-request-card">' +
         '<div class="pso-admin-request-head">' +
-          `<div><strong>${request.name}</strong><span class="pso-profile-role-pill pso-admin-status-pill is-${request.status}">${request.status}</span></div>` +
+          `<div><strong>${escapeHtml(request.name)}</strong><span class="pso-profile-role-pill pso-admin-status-pill is-${escapeHtml(request.status)}">${escapeHtml(request.status)}</span></div>` +
           `<span class="pso-profile-chip">Request #${request.id}</span>` +
         '</div>' +
         '<div class="pso-admin-request-grid">' +
-          `<div class="pso-profile-row"><span class="pso-panel-label">User ID</span><span>${request.uid}</span></div>` +
-          `<div class="pso-profile-row"><span class="pso-panel-label">Email</span><span>${request.email}</span></div>` +
-          `<div class="pso-profile-row"><span class="pso-panel-label">Instrument</span><span>${request.instrument}</span></div>` +
-          `<div class="pso-profile-row"><span class="pso-panel-label">Section</span><span>${request.section}</span></div>` +
-          `<div class="pso-profile-row"><span class="pso-panel-label">Submitted</span><span>${request.submitted_at}</span></div>` +
-          `<div class="pso-profile-row"><span class="pso-panel-label">Review</span><span>${reviewedAt}</span></div>` +
+          `<div class="pso-profile-row"><span class="pso-panel-label">User ID</span><span>${escapeHtml(request.uid)}</span></div>` +
+          `<div class="pso-profile-row"><span class="pso-panel-label">Email</span><span>${emailMarkup}</span></div>` +
+          `<div class="pso-profile-row"><span class="pso-panel-label">Instrument</span><span>${escapeHtml(request.instrument)}</span></div>` +
+          `<div class="pso-profile-row"><span class="pso-panel-label">Section</span><span>${escapeHtml(request.section)}</span></div>` +
+          `<div class="pso-profile-row"><span class="pso-panel-label">Submitted</span><span>${escapeHtml(request.submitted_at)}</span></div>` +
+          `<div class="pso-profile-row"><span class="pso-panel-label">Review</span><span>${escapeHtml(reviewedAt)}</span></div>` +
         '</div>' +
-        `<p class="pso-admin-request-meta">${reviewedBy}</p>` +
+        `<p class="pso-admin-request-meta">${escapeHtml(reviewedBy)}</p>` +
         requestActionButtons(request) + memberCardButton +
         '</article>';
     }).join('');
-
-    renderChatDirectory();
   }
 
   async function loadRequests() {
@@ -744,10 +556,156 @@
     }
 
     await loadRequests();
+    await loadChatThreads();
+
     if (window.PSOGamification) {
       window.PSOGamification.track('profile-action', { key: 'admin-review' });
     }
     setMessage('success', `Request ${action === 'approve' ? 'approved' : 'rejected'} successfully.`);
+  }
+
+  async function createMemberCard(payload) {
+    const response = await fetch(`${pythonURI}/api/pso/admin/member-cards`, {
+      ...fetchOptions,
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseResponseMessage(response, 'Unable to create a member card.'));
+    }
+
+    const data = await response.json();
+    return data.card || data;
+  }
+
+  async function loadChatThreads() {
+    const response = await fetch(`${pythonURI}/api/pso/admin/chat/threads`, fetchOptions);
+    if (!response.ok) {
+      throw new Error(await parseResponseMessage(response, 'Unable to load chats.'));
+    }
+
+    const data = await response.json();
+    allChatThreads = Array.isArray(data.threads) ? data.threads : [];
+    renderChatDirectory();
+  }
+
+  async function loadChatThread(uid) {
+    const response = await fetch(`${pythonURI}/api/pso/chat/thread?thread_uid=${encodeURIComponent(uid)}`, fetchOptions);
+    if (!response.ok) {
+      throw new Error(await parseResponseMessage(response, 'Unable to load this chat.'));
+    }
+    return response.json();
+  }
+
+  function renderChatMessages(messages) {
+    if (!messages || !messages.length) {
+      adminChatMessages.innerHTML = '<p class="pso-chat-empty">No messages yet.</p>';
+      return;
+    }
+
+    adminChatMessages.innerHTML = messages.map((message) => {
+      const roleClass = escapeHtml(message.sender_role || 'user');
+      return '<div class="pso-chat-message ' + roleClass + '">' +
+        '<strong>' + escapeHtml(message.sender_name) + '</strong>' +
+        '<div>' + escapeHtml(message.text) + '</div>' +
+        '<small>' + escapeHtml(message.created_at) + '</small>' +
+      '</div>';
+    }).join('');
+
+    adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
+  }
+
+  async function renderSelectedChat(uid) {
+    if (!uid) {
+      adminChatParticipant.textContent = 'Select a conversation';
+      adminChatMeta.textContent = 'Choose a user or member on the left to view the thread.';
+      renderChatMessages([]);
+      return;
+    }
+
+    try {
+      const thread = await loadChatThread(uid);
+      const metaParts = [thread.uid];
+      if (thread.request && thread.request.status) metaParts.push('Status: ' + thread.request.status);
+      if (thread.request && thread.request.instrument) metaParts.push(thread.request.instrument);
+      if (thread.email) metaParts.push(thread.email);
+
+      adminChatParticipant.textContent = thread.name || thread.uid;
+      adminChatMeta.textContent = metaParts.join(' • ');
+      renderChatMessages(thread.messages || []);
+    } catch (error) {
+      adminChatParticipant.textContent = 'Select a conversation';
+      adminChatMeta.textContent = error.message || 'Unable to load this thread.';
+      renderChatMessages([]);
+    }
+  }
+
+  function renderChatDirectory() {
+    if (!allChatThreads.length) {
+      chatDirectory.innerHTML = '<article class="pso-admin-request-card is-empty"><strong>No chats yet.</strong><p>Chats appear here once a user or member starts a conversation.</p></article>';
+      selectedChatUid = '';
+      renderSelectedChat('');
+      return;
+    }
+
+    if (!selectedChatUid) {
+      selectedChatUid = allChatThreads[0].uid;
+    }
+
+    chatDirectory.innerHTML = allChatThreads.map((entry) => {
+      const isActive = String(entry.uid) === String(selectedChatUid);
+      const preview = entry.latest_text || 'No messages yet.';
+      const status = entry.request_status || entry.role || 'user';
+      return '<button class="pso-admin-chat-entry' + (isActive ? ' is-active' : '') + '" type="button" data-chat-uid="' + escapeHtml(entry.uid) + '">' +
+        '<div class="pso-admin-chat-entry-head">' +
+          '<strong>' + escapeHtml(entry.name || entry.uid) + '</strong>' +
+          '<span class="pso-profile-role-pill pso-admin-status-pill is-' + escapeHtml(status) + '">' + escapeHtml(status) + '</span>' +
+        '</div>' +
+        '<span class="pso-admin-chat-entry-meta">' +
+          escapeHtml(entry.uid) +
+          (entry.request_instrument ? ' • ' + escapeHtml(entry.request_instrument) : '') +
+          (entry.email ? ' • ' + escapeHtml(entry.email) : '') +
+        '</span>' +
+        '<p>' + escapeHtml(preview) + '</p>' +
+      '</button>';
+    }).join('');
+
+    renderSelectedChat(selectedChatUid);
+  }
+
+  async function sendAdminChatMessage() {
+    if (!currentUser || !selectedChatUid) {
+      setMessage('error', 'Select a user or member chat first.');
+      return;
+    }
+
+    const text = (adminChatInput.value || '').trim();
+    if (!text) return;
+
+    adminChatSend.disabled = true;
+    try {
+      const response = await fetch(`${pythonURI}/api/pso/chat/messages`, {
+        ...fetchOptions,
+        method: 'POST',
+        body: JSON.stringify({
+          thread_uid: selectedChatUid,
+          text
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(await parseResponseMessage(response, 'Unable to send this message.'));
+      }
+
+      adminChatInput.value = '';
+      await loadChatThreads();
+      await renderSelectedChat(selectedChatUid);
+    } catch (error) {
+      setMessage('error', error.message || 'Unable to send this message.');
+    } finally {
+      adminChatSend.disabled = false;
+    }
   }
 
   async function loadDashboard() {
@@ -768,6 +726,7 @@
         window.PSOGamification.hydrateAuthenticatedUser(currentUser);
       }
       setAccountLinks(currentUser);
+
       if (!isAdminUser(currentUser)) {
         adminStatus.textContent = 'This account is signed in, but it does not have admin privileges.';
         adminSubtitle.textContent = 'Admin Access Required';
@@ -785,14 +744,16 @@
       }
 
       adminTitle.textContent = `${currentUser.name}'s Dashboard`;
-      adminStatus.textContent = 'Signed in as an orchestra admin. Submitted member requests will appear below.';
+      adminStatus.textContent = 'Signed in as an orchestra admin. Submitted member requests and chats will appear below.';
       adminName.textContent = currentUser.name || '--';
       adminUid.textContent = currentUser.uid || '--';
       adminRole.textContent = currentUser.role || 'admin';
       adminRolePill.textContent = currentUser.role || 'Admin';
       adminAvatar.textContent = initialsFromName(currentUser.name);
       dashboardContent.hidden = false;
+
       await loadRequests();
+      await loadChatThreads();
     } catch (error) {
       setAccountLinks(currentUser);
       dashboardContent.hidden = true;
@@ -838,7 +799,7 @@
     }
   });
 
-  chatDirectory.addEventListener('click', (event) => {
+  chatDirectory.addEventListener('click', async (event) => {
     const trigger = event.target.closest('[data-chat-uid]');
     if (!trigger) return;
     selectedChatUid = trigger.dataset.chatUid || '';
@@ -886,7 +847,7 @@
         imageUrl: '',
         bio: ''
       });
-      setMemberCardStatus(`Member card created for ${createdCard.ownerName || ownerName}. The member can now add their own image and bio from the musician roster.`);
+      setMemberCardStatus(`Member card created for ${createdCard.owner_name || ownerName}. The member can now add their own image and bio from the musician roster.`);
     } catch (error) {
       setMemberCardStatus(error.message || 'Failed to create member card.');
     } finally {
@@ -932,6 +893,5 @@
   setFilterButtons(currentFilter);
   setAccountLinks(null);
   renderRosterSectionOptions('', '');
-  renderChatDirectory();
   loadDashboard();
 </script>
