@@ -13,10 +13,13 @@
   var currentUser = null;
   var selectedAdminUid = "";
   var selectedVideoName = "";
+  var accountLinks = Array.prototype.slice.call(document.querySelectorAll("[data-pso-account-link]"));
 
   var currentUserNode = document.getElementById("pso-membership-current-user");
   var currentRoleNode = document.getElementById("pso-membership-current-role");
 
+  var membershipHero = document.querySelector(".pso-membership-hero");
+  var applicantGrid = document.querySelector(".pso-membership-grid-main");
   var applicationForm = document.getElementById("pso-membership-form");
   var formMessage = document.getElementById("pso-membership-form-message");
   var videoInput = document.getElementById("pso-apply-video");
@@ -110,6 +113,26 @@
   function getDisplayName(user) {
     if (!user) return "Guest";
     return user.name || user.uid || "Signed-in User";
+  }
+
+  function renderAccountLinks() {
+    if (!accountLinks.length) return;
+
+    accountLinks.forEach(function (link) {
+      var signInHref = link.dataset.signinHref || "/powayorchestra/signin/";
+      var profileHref = link.dataset.profileHref || "/powayorchestra/profile/";
+
+      if (currentUser && currentUser.name) {
+        link.textContent = currentUser.name;
+        link.href = profileHref;
+        link.setAttribute("aria-label", currentUser.name + " profile");
+      } else {
+        var signInLabel = link.dataset.signinLabel || "Sign In";
+        link.textContent = signInLabel;
+        link.href = signInHref;
+        link.setAttribute("aria-label", signInLabel);
+      }
+    });
   }
 
   function escapeHtml(value) {
@@ -218,8 +241,24 @@
   }
 
   function renderApplicantArea() {
+    var isMember = currentUser && isApprovedMember(currentUser) && !isAdmin(currentUser);
     var request = currentUser ? getRequestForUid(currentUser.uid) : null;
     fillApplicationForm(request);
+
+    if (membershipHero) {
+      membershipHero.hidden = isMember;
+    }
+
+    if (applicantGrid) {
+      applicantGrid.hidden = isMember;
+    }
+
+    if (isMember) {
+      if (formMessage) {
+        formMessage.textContent = "";
+      }
+      return;
+    }
 
     if (!currentUser) {
       Array.prototype.forEach.call(applicationForm.querySelectorAll("input, textarea, select, button"), function (node) {
@@ -247,7 +286,7 @@
     }
 
     var request = getRequestForUid(currentUser.uid);
-    if (!request) {
+    if (!request && !isApprovedMember(currentUser)) {
       userChatCard.hidden = true;
       return;
     }
@@ -258,24 +297,7 @@
   }
 
   function renderMemberCustomization() {
-    if (!currentUser || !isApprovedMember(currentUser) || isAdmin(currentUser)) {
-      memberCustomCard.hidden = true;
-      return;
-    }
-
     memberCustomCard.hidden = false;
-
-    var profiles = getMemberProfiles();
-    var profile = profiles.find(function (entry) {
-      return String(entry.uid) === String(currentUser.uid);
-    }) || {};
-
-    setInputValue("pso-member-display-name", profile.displayName || currentUser.name || "");
-    setInputValue("pso-member-section", profile.section || "");
-    setInputValue("pso-member-instruments", profile.instruments || "");
-    setInputValue("pso-member-featured-piece", profile.featuredPiece || "");
-    setInputValue("pso-member-image", profile.imageUrl || "");
-    setInputValue("pso-member-bio", profile.bio || "");
   }
 
   function renderAdminList() {
@@ -535,6 +557,7 @@
   }
 
   function renderAll() {
+    renderAccountLinks();
     renderRoleSummary();
     renderApplicantArea();
     renderUserChat();
