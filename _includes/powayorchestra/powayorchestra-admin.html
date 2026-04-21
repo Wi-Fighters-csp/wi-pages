@@ -495,9 +495,9 @@
     const visibleRequests = filteredRequests();
     if (!visibleRequests.length) {
       requestList.innerHTML = '<article class="pso-admin-request-card is-empty">' +
-        '<strong>No requests in this view.</strong>' +
-        '<p>When users submit member applications, they will appear here for admin review.</p>' +
-        '</article>';
+      '<strong>No requests in this view.</strong>' +
+      '<p>Applications submitted from any device will appear here once they are saved to the backend.</p>' +
+      '</article>';
       return;
     }
 
@@ -626,13 +626,15 @@
 
     try {
       const thread = await loadChatThread(uid);
-      const metaParts = [thread.uid];
-      if (thread.request && thread.request.status) metaParts.push('Status: ' + thread.request.status);
-      if (thread.request && thread.request.instrument) metaParts.push(thread.request.instrument);
-      if (thread.email) metaParts.push(thread.email);
+      const metaParts = [escapeHtml(thread.uid)];
+      if (thread.request && thread.request.status) metaParts.push('Status: ' + escapeHtml(thread.request.status));
+      if (thread.request && thread.request.instrument) metaParts.push(escapeHtml(thread.request.instrument));
+      if (thread.email) {
+        metaParts.push(`<a href="mailto:${escapeHtml(thread.email)}" class="pso-admin-email-link">${escapeHtml(thread.email)}</a>`);
+      }
 
       adminChatParticipant.textContent = thread.name || thread.uid;
-      adminChatMeta.textContent = metaParts.join(' • ');
+      adminChatMeta.innerHTML = metaParts.join(' • ');
       renderChatMessages(thread.messages || []);
     } catch (error) {
       adminChatParticipant.textContent = 'Select a conversation';
@@ -665,7 +667,7 @@
         '<span class="pso-admin-chat-entry-meta">' +
           escapeHtml(entry.uid) +
           (entry.request_instrument ? ' • ' + escapeHtml(entry.request_instrument) : '') +
-          (entry.email ? ' • ' + escapeHtml(entry.email) : '') +
+          (entry.email ? ' • <a href="mailto:' + escapeHtml(entry.email) + '" class="pso-admin-email-link">' + escapeHtml(entry.email) + '</a>' : '') +
         '</span>' +
         '<p>' + escapeHtml(preview) + '</p>' +
       '</button>';

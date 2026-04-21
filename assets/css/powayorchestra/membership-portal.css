@@ -432,3 +432,8 @@
     font-size: 2.45rem;
   }
 }
+
+.pso-admin-email-link {
+  color: var(--gold-light);
+  text-decoration: underline;
+}
