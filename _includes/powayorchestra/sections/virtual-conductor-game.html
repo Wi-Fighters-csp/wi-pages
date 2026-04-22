@@ -9,16 +9,16 @@
 * { margin:0; padding:0; box-sizing:border-box; }
  
 :root {
-  /* PSO colour palette — crimson + gold on near-black */
-  --bg:       #130808;
-  --surface:  rgba(255,255,255,.04);
-  --border:   rgba(255,255,255,.10);
+  /* PSO colour palette — crimson + gold on light cream bg */
+  --bg:       #d4c4b0;
+  --surface:  rgba(0,0,0,.04);
+  --border:   rgba(0,0,0,.10);
   --crimson:  #b91c1c;
   --crimson2: #dc2626;
   --gold:     #c9a84c;
   --gold2:    #e8c060;
-  --cream:    #f0ebe0;
-  --muted:    #8a7272;
+  --cream:    #2a2a2a;
+  --muted:    #666666;
  
   /* lane colours — only gold & crimson, two shades each */
   --c0: #c9a84c;
@@ -46,7 +46,7 @@ html, body {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   gap: 16px;
-  background: radial-gradient(ellipse at 50% 30%, #2a0d0d 0%, #130808 65%);
+  background: radial-gradient(ellipse at 50% 30%, #e8dcc8 0%, #d4c4b0 65%);
   z-index: 100;
   padding: 40px 20px;
   min-height: 100vh;
@@ -162,6 +162,7 @@ html, body {
   display: none; 
   flex-direction: column; 
   align-items: center;
+  background: radial-gradient(ellipse at 50% 30%, #e8dcc8 0%, #d4c4b0 65%);
 }
 #game-canvas { 
   display: block; 
@@ -177,6 +178,7 @@ html, body {
   display: flex; justify-content: space-between; align-items: flex-start;
   padding: 14px 22px 0;
   pointer-events: none; z-index: 10;
+  transition: transform 0.05s ease-out;
 }
 .hud-col  { min-width: 80px; }
 .hud-lbl  {
@@ -236,7 +238,7 @@ html, body {
   display: none; flex-direction: column;
   align-items: center; justify-content: center;
   gap: 14px;
-  background: radial-gradient(ellipse at center, #2a0d0d 0%, #130808 65%);
+  background: radial-gradient(ellipse at center, #e8dcc8 0%, #d4c4b0 65%);
   z-index: 200;
 }
  
@@ -468,6 +470,15 @@ function updateHUD() {
   document.getElementById('score-num').textContent = G.score.toLocaleString();
   document.getElementById('combo-num').textContent = G.combo;
   document.getElementById('level-num').textContent = G.level;
+  
+  // Pulse the HUD elements with the beat
+  const elapsed = performance.now() - G.startTime;
+  const beatPh = (elapsed % G.beatInterval) / G.beatInterval;
+  const hud = document.getElementById('hud');
+  
+  // Subtle scale pulse on beat
+  const scale = 1 + (Math.pow(Math.cos(beatPh * Math.PI * 2), 2) * 0.03);
+  hud.style.transform = `scale(${scale})`;
 }
  
 // ── RENDER ────────────────────────────────────────
@@ -475,32 +486,32 @@ function render(ts) {
   const elapsed = ts - G.startTime;
   ctx.clearRect(0, 0, CW, CH);
  
-  // dark background
+  // light background
   const bg = ctx.createLinearGradient(0,0,0,CH);
-  bg.addColorStop(0,'#130808'); bg.addColorStop(1,'#1a0a0a');
+  bg.addColorStop(0,'#e8dcc8'); bg.addColorStop(1,'#d4c4b0');
   ctx.fillStyle = bg; ctx.fillRect(0,0,CW,CH);
  
   // subtle horizontal lines
-  ctx.strokeStyle = 'rgba(255,255,255,.012)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(0,0,0,.03)'; ctx.lineWidth = 1;
   for (let y=0; y<CH; y+=38) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(CW,y); ctx.stroke(); }
  
   // lanes
   for (let i=0; i<4; i++) {
     const x = LANE_X[i];
     const lg = ctx.createLinearGradient(x,0,x+LANE_W,0);
-    lg.addColorStop(0,'rgba(255,255,255,.015)'); lg.addColorStop(.5,'rgba(255,255,255,.03)'); lg.addColorStop(1,'rgba(255,255,255,.015)');
+    lg.addColorStop(0,'rgba(0,0,0,.02)'); lg.addColorStop(.5,'rgba(0,0,0,.04)'); lg.addColorStop(1,'rgba(0,0,0,.02)');
     ctx.fillStyle = lg; ctx.fillRect(x,0,LANE_W,CH);
-    ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth=1; ctx.strokeRect(x,0,LANE_W,CH);
+    ctx.strokeStyle = 'rgba(0,0,0,.08)'; ctx.lineWidth=1; ctx.strokeRect(x,0,LANE_W,CH);
   }
  
   // hit line — gold pulse on beat
   const beatPh = (elapsed % G.beatInterval) / G.beatInterval;
-  const pulse  = Math.pow(1-beatPh, 3);
+  const pulse  = Math.pow(Math.cos(beatPh * Math.PI * 2), 2);
   ctx.save();
-  ctx.shadowBlur  = 8 + pulse*22;
-  ctx.shadowColor = `rgba(201,168,76,${.35+pulse*.45})`;
-  ctx.strokeStyle = `rgba(201,168,76,${.5+pulse*.4})`;
-  ctx.lineWidth = 2;
+  ctx.shadowBlur  = 8 + pulse*25;
+  ctx.shadowColor = `rgba(201,168,76,${.35+pulse*.5})`;
+  ctx.strokeStyle = `rgba(201,168,76,${.5+pulse*.5})`;
+  ctx.lineWidth = 2 + pulse;
   ctx.beginPath(); ctx.moveTo(LANE_X[0],HIT_Y); ctx.lineTo(LANE_X[3]+LANE_W,HIT_Y); ctx.stroke();
   ctx.restore();
  
@@ -509,13 +520,13 @@ function render(ts) {
     const cx = LANE_X[i]+LANE_W/2, pressed = G.laneActive[i], col = LANE_COLORS[i];
     ctx.save();
     ctx.beginPath(); ctx.arc(cx,HIT_Y,NOTE_R+5,0,Math.PI*2);
-    ctx.strokeStyle = pressed ? col : 'rgba(255,255,255,.18)';
+    ctx.strokeStyle = pressed ? col : 'rgba(0,0,0,.15)';
     ctx.lineWidth   = pressed ? 2.5 : 1.5;
     if (pressed) { ctx.shadowBlur=18; ctx.shadowColor=col; }
     ctx.stroke();
     if (pressed) { ctx.beginPath(); ctx.arc(cx,HIT_Y,NOTE_R+3,0,Math.PI*2); ctx.fillStyle=col+'1e'; ctx.fill(); }
     ctx.restore();
-    ctx.fillStyle = pressed ? col : 'rgba(255,255,255,.25)';
+    ctx.fillStyle = pressed ? col : 'rgba(0,0,0,.25)';
     ctx.font = `700 13px 'Lato',sans-serif`;
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(KEYS[i].toUpperCase(), cx, HIT_Y+NOTE_R+20);
