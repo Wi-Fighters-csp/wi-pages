@@ -3,14 +3,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Orchestra Tiles · PSO</title>
-<!-- PSO site fonts: Playfair Display (headings) + Lato (body/UI) -->
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
- 
+
 :root {
-  /* PSO colour palette — crimson + gold on light cream bg */
-  --bg:       #d4c4b0;
+  --bg:       #ffffff;
   --surface:  rgba(0,0,0,.04);
   --border:   rgba(0,0,0,.10);
   --crimson:  #b91c1c;
@@ -19,31 +17,28 @@
   --gold2:    #e8c060;
   --cream:    #2a2a2a;
   --muted:    #666666;
- 
-  /* lane colours — only gold & crimson, two shades each */
+
   --c0: #c9a84c;
   --c1: #b91c1c;
   --c2: #e8c060;
   --c3: #dc2626;
 }
- 
+
 html, body {
-  width:100%; 
-  min-height:100vh;
-  background: #f0ebe0;
+  width: 100%;
+  background: #ffffff;
   color: var(--cream);
   font-family: 'Lato', sans-serif;
   overflow-x: hidden;
-  touch-action: none;
   user-select: none;
 }
- 
+
 /* ═══════════════════════════════════════
    CONDUCTOR DESCRIPTION SECTION
 ═══════════════════════════════════════ */
 #conductor-description {
   width: 100%;
-  background: #f0ebe0;
+  background: #ffffff;
   padding: 60px 20px;
   text-align: center;
   display: flex;
@@ -79,11 +74,9 @@ html, body {
   gap: 16px;
   background: radial-gradient(ellipse at 50% 30%, #2a0d0d 0%, #130808 65%);
   z-index: 100;
-  padding: 40px 20px;
-  min-height: 100vh;
+  padding: 60px 20px;
 }
- 
-/* kicker — matches PSO's small caps section labels */
+
 .pso-kicker {
   font-family: 'Lato', sans-serif;
   font-size: 11px;
@@ -93,8 +86,7 @@ html, body {
   color: var(--crimson);
   opacity: .85;
 }
- 
-/* main title — Playfair Display like PSO section headings */
+
 #menu h1 {
   font-family: 'Playfair Display', serif;
   font-size: clamp(32px, 6vw, 58px);
@@ -108,18 +100,16 @@ html, body {
   font-style: italic;
   color: var(--gold);
 }
- 
-/* gold rule — mirrors PSO dividers */
+
 .pso-rule {
   width: min(380px, 85vw);
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
   opacity: .45;
 }
- 
-/* track list */
+
 .track-grid { display: grid; gap: 6px; width: min(460px, 92vw); }
- 
+
 .track-item {
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.10);
@@ -133,12 +123,11 @@ html, body {
 }
 .track-item:hover  { background: rgba(185,28,28,.08); border-color: rgba(185,28,28,.4); }
 .track-item.active { border-color: var(--crimson); background: rgba(185,28,28,.1); }
- 
+
 .t-name { font-size: 13px; font-weight: 400; color: #f0ebe0; }
 .t-meta { font-size: 11px; color: #8a7272; margin-top: 1px; }
 .t-bpm  { font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: .06em; }
- 
-/* key chips */
+
 .keys-row { display: flex; gap: 8px; }
 .key-chip {
   width: 36px; height: 36px;
@@ -152,8 +141,7 @@ html, body {
 .key-chip:nth-child(2) { border-color: var(--c1); color: var(--c1); }
 .key-chip:nth-child(3) { border-color: var(--c2); color: var(--c2); }
 .key-chip:nth-child(4) { border-color: var(--c3); color: var(--c3); }
- 
-/* PSO primary button — solid crimson, matches their .btn-primary */
+
 .btn-pso {
   font-family: 'Lato', sans-serif;
   font-size: 14px;
@@ -174,7 +162,7 @@ html, body {
   transform: translateY(-1px);
 }
 .btn-pso:active { transform: translateY(0); }
- 
+
 .menu-hint {
   font-family: 'Lato', sans-serif;
   font-size: 11px;
@@ -182,29 +170,30 @@ html, body {
   letter-spacing: .04em;
   text-align: center;
 }
- 
+
 /* ═══════════════════════════════════════
-   GAME
+   GAME  — sits below the menu in page flow
 ═══════════════════════════════════════ */
-#game { 
-  position: relative; 
+#game {
+  position: relative;
   width: 100%;
   height: 100vh;
-  display: none; 
-  flex-direction: column; 
+  display: none;
+  flex-direction: column;
   align-items: center;
+  /* burgundy gradient — same palette, isolated to this section */
   background: radial-gradient(ellipse at 50% 30%, #2a0d0d 0%, #130808 65%);
 }
-#game-canvas { 
-  display: block; 
-  cursor: default; 
-  position: absolute; 
-  top: 0; 
+#game-canvas {
+  display: block;
+  cursor: default;
+  position: absolute;
+  top: 0;
 }
- 
+
 /* HUD */
 #hud {
-  position: absolute; 
+  position: absolute;
   top: 0; left: 0; right: 0;
   display: flex; justify-content: space-between; align-items: flex-start;
   padding: 14px 22px 0;
@@ -234,8 +223,8 @@ html, body {
   font-size: 9px; font-weight: 700;
   color: rgba(220,38,38,.5); text-align: center; letter-spacing: .28em;
 }
- 
-/* YouTube background audio — tiny, invisible, always in DOM */
+
+/* YouTube background audio */
 #yt-wrap {
   position: fixed;
   width: 2px; height: 2px;
@@ -246,7 +235,7 @@ html, body {
   z-index: 1;
 }
 #yt-wrap iframe { width:320px; height:180px; border:none; }
- 
+
 /* level-up flash */
 #levelup-flash {
   position: fixed; top: 50%; left: 50%;
@@ -260,7 +249,7 @@ html, body {
   text-shadow: 0 0 36px var(--gold), 0 0 72px rgba(201,168,76,.35);
   pointer-events: none; z-index: 20; opacity: 0;
 }
- 
+
 /* ═══════════════════════════════════════
    RESULTS / GAME OVER
 ═══════════════════════════════════════ */
@@ -272,7 +261,7 @@ html, body {
   background: radial-gradient(ellipse at center, #2a0d0d 0%, #130808 65%);
   z-index: 200;
 }
- 
+
 #res-title {
   font-family: 'Playfair Display', serif;
   font-size: clamp(20px, 3.5vw, 32px);
@@ -281,19 +270,19 @@ html, body {
   letter-spacing: .02em;
   color: #f0ebe0;
 }
- 
+
 .rank-big {
   font-family: 'Playfair Display', serif;
   font-size: 90px; font-weight: 900; line-height: 1;
   text-shadow: 0 0 50px currentColor;
 }
- 
+
 .res-rule {
   width: min(340px, 80vw); height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
   opacity: .35;
 }
- 
+
 .stats-grid {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 8px; width: min(360px, 92vw);
@@ -314,28 +303,58 @@ html, body {
   color: #8a7272; letter-spacing: .2em;
   text-transform: uppercase; margin-top: 4px;
 }
- 
+
 #res-note {
   font-family: 'Lato', sans-serif;
   font-size: 11px; color: #8a7272;
   letter-spacing: .06em; text-align: center;
 }
+
+/* Countdown overlay */
+#countdown-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 15;
+  pointer-events: none;
+}
+#countdown-text {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(48px, 12vw, 96px);
+  font-weight: 900;
+  color: var(--gold2);
+  text-shadow: 0 0 40px var(--gold), 0 0 80px rgba(201,168,76,.4);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+#countdown-sublabel {
+  font-family: 'Lato', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: #8a7272;
+  margin-top: 12px;
+}
 </style>
 </head>
 <body>
- 
-<div id="yt-wrap"></div>
+
+<div id="yt-wrap"><div id="yt-player"></div></div>
 <div id="levelup-flash"></div>
 
 <!-- ══ CONDUCTOR DESCRIPTION ══ -->
 <div id="conductor-description">
   <h1>Orchestra Tiles</h1>
   <p>
-    Conductor of Poway Symphony Orchestra, test your musical timing by clicking the tiles in rhythm with the orchestra. 
+    Conductor of Poway Symphony Orchestra, test your musical timing by clicking the tiles in rhythm with the orchestra.
     Choose a piece, follow the beat, and see how high you can score. One miss ends your performance—can you become a master conductor?
   </p>
 </div>
- 
+
 <!-- ══ MENU ══ -->
 <div id="menu">
   <div class="pso-kicker">Poway Symphony Orchestra</div>
@@ -354,8 +373,8 @@ html, body {
   <button class="btn-pso" id="start-btn">Start Performance</button>
   <p class="menu-hint">Click lanes with mouse &nbsp;·&nbsp; One miss ends the performance &nbsp;·&nbsp; ESC to quit</p>
 </div>
- 
-<!-- ══ GAME ══ -->
+
+<!-- ══ GAME — below the menu ══ -->
 <div id="game">
   <div id="hud">
     <div class="hud-col">
@@ -371,9 +390,16 @@ html, body {
       <div class="hud-num" id="level-num" style="color:var(--gold);text-align:right">1</div>
     </div>
   </div>
+
+  <!-- Countdown shown while waiting for music to start -->
+  <div id="countdown-overlay">
+    <div id="countdown-text">♩</div>
+    <div id="countdown-sublabel">Waiting for music…</div>
+  </div>
+
   <canvas id="game-canvas"></canvas>
 </div>
- 
+
 <!-- ══ RESULTS ══ -->
 <div id="results">
   <div class="pso-kicker">Poway Symphony Orchestra</div>
@@ -391,7 +417,10 @@ html, body {
   <div id="res-note"></div>
   <button class="btn-pso" id="retry-btn">Try Again</button>
 </div>
- 
+
+<!-- Load YouTube IFrame API — timing fix depends on this -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
 <script>
 // ── TRACKS ──────────────────────────────────────
 const TRACKS = [
@@ -401,24 +430,24 @@ const TRACKS = [
   { title:'Slavonic Dance No. 8',         composer:'Dvořák',      videoId:'3h9P3yZ9Q8o', bpm:92,  startSeconds:7  },
   { title:'Le Corsaire Overture',         composer:'Berlioz',     videoId:'U9C0qK0sG9E', bpm:148, startSeconds:8  },
 ];
- 
+
 // ── CONSTANTS ────────────────────────────────────
 const LANE_COLORS = ['#c9a84c','#b91c1c','#e8c060','#dc2626'];
 const KEYS        = ['d','f','j','k'];
- 
+
 const WIN_PERFECT = 50, WIN_GREAT = 105, WIN_GOOD = 170, WIN_MISS = 270;
 const SC = { perfect:300, great:200, good:100 };
 const JC = { perfect:'#e8c060', great:'#f0a020', good:'#dc6060' };
- 
+
 const SPEED_START = 1400, SPEED_MIN = 300;
 const FALL_START  = 2700, FALL_MIN  = 1300;
 const HITS_PER_LVL = 5, MAX_LVL = 15;
- 
+
 // ── CANVAS ───────────────────────────────────────
 const canvas = document.getElementById('game-canvas');
 const ctx    = canvas.getContext('2d');
 let CW, CH, HIT_Y, NOTE_R, LANE_X, LANE_W;
- 
+
 function resize() {
   CW = Math.min(window.innerWidth, 520);
   CH = window.innerHeight;
@@ -434,15 +463,90 @@ function resize() {
   NOTE_R = LANE_W * .36;
 }
 resize();
- 
+
+// ── YOUTUBE IFRAME API ───────────────────────────
+// ytPlayer is created once; we reuse it across games.
+let ytPlayer        = null;
+let ytApiReady      = false;
+let pendingVideoId  = null;
+let pendingStart    = 0;
+let musicStarted    = false; // becomes true the moment YT fires PLAYING
+
+window.onYouTubeIframeAPIReady = function () {
+  ytApiReady = true;
+  ytPlayer = new YT.Player('yt-player', {
+    height: '180', width: '320',
+    playerVars: { controls: 0, rel: 0, modestbranding: 1, playsinline: 1 },
+    events: {
+      onStateChange: function (event) {
+        // YT.PlayerState.PLAYING === 1
+        if (event.data === 1 && G && !musicStarted) {
+          musicStarted = true;
+          hideCountdown();
+          // Small buffer so the very first beat lands naturally
+          spawnTimer = setTimeout(doSpawn, 300);
+        }
+      }
+    }
+  });
+  // If startGame() was called before the API finished loading, launch now
+  if (pendingVideoId) {
+    ytPlayer.loadVideoById({ videoId: pendingVideoId, startSeconds: pendingStart });
+    pendingVideoId = null;
+  }
+};
+
+function spawnYT(videoId, start) {
+  musicStarted = false;
+  if (ytApiReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+    ytPlayer.loadVideoById({ videoId: videoId, startSeconds: start });
+  } else {
+    // API not ready yet — queue it
+    pendingVideoId = videoId;
+    pendingStart   = start;
+  }
+}
+
+function stopYT() {
+  musicStarted = false;
+  if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
+    ytPlayer.stopVideo();
+  }
+}
+
+// Countdown overlay helpers
+function showCountdown() {
+  const overlay = document.getElementById('countdown-overlay');
+  const text    = document.getElementById('countdown-text');
+  overlay.style.display = 'flex';
+  // gentle pulse animation while waiting
+  text.style.opacity = '1';
+  text.style.animation = 'none';
+  let dots = 0;
+  const sub = document.getElementById('countdown-sublabel');
+  sub.textContent = 'Waiting for music…';
+  window._countdownInterval = setInterval(() => {
+    dots = (dots + 1) % 4;
+    sub.textContent = 'Waiting for music' + '.'.repeat(dots);
+  }, 500);
+}
+
+function hideCountdown() {
+  clearInterval(window._countdownInterval);
+  const overlay = document.getElementById('countdown-overlay');
+  const text    = document.getElementById('countdown-text');
+  text.style.opacity = '0';
+  setTimeout(() => { overlay.style.display = 'none'; }, 300);
+}
+
 // ── STATE ────────────────────────────────────────
 let G = null, spawnTimer = null, selectedTrack = 0;
- 
+
 function lerpSpeed(lvl) { const t=(lvl-1)/(MAX_LVL-1); return Math.round(SPEED_START-t*(SPEED_START-SPEED_MIN)); }
 function lerpFall(lvl)  { const t=(lvl-1)/(MAX_LVL-1); return Math.round(FALL_START -t*(FALL_START -FALL_MIN )); }
- 
+
 function makeState(track) {
-  return { active:true, startTime:performance.now(),
+  return { active:true, startTime:null,   // startTime set when music begins
     score:0, combo:0, maxCombo:0, totalHit:0,
     counts:{perfect:0,great:0,good:0},
     notes:[], noteId:0, level:1, hitsThisLevel:0,
@@ -451,24 +555,31 @@ function makeState(track) {
     judgement:{text:'',color:'',alpha:0},
     beatInterval:60000/track.bpm, track };
 }
- 
+
 // ── SPAWN ─────────────────────────────────────────
 function scheduleNote() {
   if (!G?.active) return;
   spawnTimer = setTimeout(doSpawn, lerpSpeed(G.level));
 }
+
 function doSpawn() {
   if (!G?.active) return;
+  // Initialise the game clock the first time a note is spawned
+  // (this is right after music starts, so the clock is in sync)
+  if (!G.startTime) {
+    G.startTime = performance.now();
+    requestAnimationFrame(loop);
+  }
   const lane    = Math.floor(Math.random() * 4);
   const fallDur = lerpFall(G.level);
   const elapsed = performance.now() - G.startTime;
   G.notes.push({ id:G.noteId++, lane, hitTime:elapsed+fallDur, fallDuration:fallDur, hit:false, missed:false });
   scheduleNote();
 }
- 
+
 // ── HIT ───────────────────────────────────────────
 function pressLane(lane) {
-  if (!G?.active) return;
+  if (!G?.active || !G.startTime) return;
   const elapsed = performance.now() - G.startTime;
   let best=null, bestDiff=Infinity;
   for (const n of G.notes) {
@@ -497,45 +608,39 @@ function pressLane(lane) {
   });
   updateHUD();
 }
- 
+
 function flashLevel(lvl) {
   const el = document.getElementById('levelup-flash');
   el.textContent = `Level ${lvl}`;
   el.style.transition = 'none'; el.style.opacity = '1';
   setTimeout(() => { el.style.transition='opacity 1.4s ease'; el.style.opacity='0'; }, 500);
 }
- 
+
 function updateHUD() {
   if (!G) return;
   document.getElementById('score-num').textContent = G.score.toLocaleString();
   document.getElementById('combo-num').textContent = G.combo;
   document.getElementById('level-num').textContent = G.level;
-  
-  // Pulse the HUD elements with the beat
-  const elapsed = performance.now() - G.startTime;
+  const elapsed = G.startTime ? performance.now() - G.startTime : 0;
   const beatPh = (elapsed % G.beatInterval) / G.beatInterval;
   const hud = document.getElementById('hud');
-  
-  // Subtle scale pulse on beat
   const scale = 1 + (Math.pow(Math.cos(beatPh * Math.PI * 2), 2) * 0.03);
   hud.style.transform = `scale(${scale})`;
 }
- 
+
 // ── RENDER ────────────────────────────────────────
 function render(ts) {
+  if (!G.startTime) return;
   const elapsed = ts - G.startTime;
   ctx.clearRect(0, 0, CW, CH);
- 
-  // dark background (burgundy)
+
   const bg = ctx.createLinearGradient(0,0,0,CH);
   bg.addColorStop(0,'#2a0d0d'); bg.addColorStop(1,'#1a0a0a');
   ctx.fillStyle = bg; ctx.fillRect(0,0,CW,CH);
- 
-  // subtle horizontal lines
+
   ctx.strokeStyle = 'rgba(255,255,255,.012)'; ctx.lineWidth = 1;
   for (let y=0; y<CH; y+=38) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(CW,y); ctx.stroke(); }
- 
-  // lanes
+
   for (let i=0; i<4; i++) {
     const x = LANE_X[i];
     const lg = ctx.createLinearGradient(x,0,x+LANE_W,0);
@@ -543,8 +648,7 @@ function render(ts) {
     ctx.fillStyle = lg; ctx.fillRect(x,0,LANE_W,CH);
     ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth=1; ctx.strokeRect(x,0,LANE_W,CH);
   }
- 
-  // hit line — gold pulse on beat
+
   const beatPh = (elapsed % G.beatInterval) / G.beatInterval;
   const pulse  = Math.pow(Math.cos(beatPh * Math.PI * 2), 2);
   ctx.save();
@@ -554,8 +658,7 @@ function render(ts) {
   ctx.lineWidth = 2 + pulse;
   ctx.beginPath(); ctx.moveTo(LANE_X[0],HIT_Y); ctx.lineTo(LANE_X[3]+LANE_W,HIT_Y); ctx.stroke();
   ctx.restore();
- 
-  // receptor rings + key labels
+
   for (let i=0; i<4; i++) {
     const cx = LANE_X[i]+LANE_W/2, pressed = G.laneActive[i], col = LANE_COLORS[i];
     ctx.save();
@@ -571,8 +674,7 @@ function render(ts) {
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(KEYS[i].toUpperCase(), cx, HIT_Y+NOTE_R+20);
   }
- 
-  // falling notes
+
   for (const n of G.notes) {
     if (n.hit||n.missed) continue;
     const tth = n.hitTime - elapsed;
@@ -582,7 +684,6 @@ function render(ts) {
     const cx  = LANE_X[n.lane]+LANE_W/2;
     const col = LANE_COLORS[n.lane];
     const fadeIn = Math.min(1, (n.fallDuration-tth)/180);
- 
     ctx.save();
     ctx.globalAlpha = Math.max(0, fadeIn);
     ctx.shadowBlur  = 14; ctx.shadowColor = col;
@@ -595,8 +696,7 @@ function render(ts) {
     ctx.fillStyle='rgba(255,255,255,.6)'; ctx.fill();
     ctx.restore();
   }
- 
-  // ripple rings
+
   G.ripples = G.ripples.filter(r=>r.alpha>0);
   for (const r of G.ripples) {
     const cx = LANE_X[r.lane]+LANE_W/2, col = LANE_COLORS[r.lane];
@@ -605,16 +705,14 @@ function render(ts) {
     ctx.lineWidth=3; ctx.shadowBlur=10; ctx.shadowColor=col; ctx.stroke(); ctx.restore();
     r.r+=4; r.alpha-=.07;
   }
- 
-  // particles
+
   G.particles = G.particles.filter(p=>p.alpha>0);
   for (const p of G.particles) {
     ctx.save(); ctx.globalAlpha=p.alpha; ctx.shadowBlur=7; ctx.shadowColor=p.color;
     ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fillStyle=p.color; ctx.fill(); ctx.restore();
     p.x+=p.vx; p.y+=p.vy; p.vy+=.18; p.alpha-=.028;
   }
- 
-  // judgement text
+
   if (G.judgement.alpha > 0) {
     ctx.save();
     ctx.globalAlpha = G.judgement.alpha;
@@ -626,48 +724,56 @@ function render(ts) {
     ctx.restore();
     G.judgement.alpha -= .022;
   }
- 
-  // miss detection → game over
+
   for (const n of G.notes) {
     if (n.hit||n.missed) continue;
     if (elapsed-n.hitTime > WIN_MISS) { n.missed=true; triggerGameOver(); return; }
   }
 }
- 
+
 function loop(ts) { if (!G?.active) return; render(ts); requestAnimationFrame(loop); }
- 
+
 // ── START ─────────────────────────────────────────
 function startGame() {
   const track = TRACKS[selectedTrack];
   G = makeState(track);
+
   document.getElementById('conductor-description').style.display = 'none';
   document.getElementById('menu').style.display    = 'none';
   document.getElementById('results').style.display = 'none';
-  document.getElementById('game').style.display    = 'flex';
+
+  const gameEl = document.getElementById('game');
+  gameEl.style.display = 'flex';
+
+  // Scroll to the game section
+  gameEl.scrollIntoView({ behavior: 'smooth' });
+
+  showCountdown();
   updateHUD();
+
+  // Load music — notes will only spawn once YT fires its PLAYING event
   spawnYT(track.videoId, track.startSeconds);
-  spawnTimer = setTimeout(doSpawn, 1200);
-  requestAnimationFrame(loop);
 }
- 
+
 // ── GAME OVER ─────────────────────────────────────
 function triggerGameOver() {
   if (!G) return;
   G.active = false;
   clearTimeout(spawnTimer);
+  clearInterval(window._countdownInterval);
   stopYT();
- 
+
   document.getElementById('game').style.display    = 'none';
   document.getElementById('results').style.display = 'flex';
- 
+
   const title = document.getElementById('res-title');
   title.textContent = 'Miss — Game Over';
   title.style.color = '#dc2626';
- 
+
   const rb = document.getElementById('rank-big');
   rb.textContent = '✕'; rb.style.color = '#dc2626';
   rb.style.textShadow = '0 0 50px rgba(220,38,38,.7)';
- 
+
   document.getElementById('rs-score').textContent   = G.score.toLocaleString();
   document.getElementById('rs-level').textContent   = G.level;
   document.getElementById('rs-streak').textContent  = G.maxCombo;
@@ -676,7 +782,7 @@ function triggerGameOver() {
   document.getElementById('rs-great').textContent   = G.counts.great;
   document.getElementById('res-note').textContent   = `One miss ends the performance · Can you beat ${G.score.toLocaleString()}?`;
 }
- 
+
 // ── INPUT ─────────────────────────────────────────
 window.addEventListener('keydown', e => {
   if (e.repeat) return;
@@ -688,7 +794,7 @@ window.addEventListener('keyup', e => {
   const i = KEYS.indexOf(e.key.toLowerCase());
   if (i !== -1 && G) G.laneActive[i] = false;
 });
- 
+
 canvas.addEventListener('pointerdown', e => {
   if (!G?.active) return;
   const rx = e.clientX - canvas.getBoundingClientRect().left;
@@ -699,18 +805,7 @@ canvas.addEventListener('pointerup', e => {
   const rx = e.clientX - canvas.getBoundingClientRect().left;
   for (let i=0; i<4; i++) if (rx>=LANE_X[i] && rx<=LANE_X[i]+LANE_W) { G.laneActive[i]=false; break; }
 });
- 
-// ── MUSIC ─────────────────────────────────────────
-function spawnYT(videoId, start) {
-  document.getElementById('yt-wrap').innerHTML =
-    `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&playsinline=1"
-      allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-}
- 
-function stopYT() {
-  document.getElementById('yt-wrap').innerHTML = '';
-}
- 
+
 // ── MENU BUILD ────────────────────────────────────
 (function buildMenu() {
   const list = document.getElementById('track-list');
@@ -731,15 +826,18 @@ function stopYT() {
     list.appendChild(el);
   });
 })();
- 
+
 document.getElementById('start-btn').addEventListener('click', startGame);
 document.getElementById('retry-btn').addEventListener('click', () => {
   document.getElementById('results').style.display = 'none';
+  document.getElementById('conductor-description').style.display = 'flex';
   document.getElementById('menu').style.display    = 'flex';
   document.getElementById('res-title').style.color = '';
   document.getElementById('rank-big').style.textShadow = '';
+  // Scroll back to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
- 
+
 window.addEventListener('resize', resize);
 </script>
 </body>
