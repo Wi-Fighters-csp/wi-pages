@@ -272,9 +272,17 @@
       <div class="pso-profile-chat-head">
         <div>
           <h3 id="pso-profile-chat-title">Chat With Admin</h3>
-          <p class="pso-signin-section-copy">Your membership thread opens here without taking you back to the membership hub.</p>
+          <p class="pso-signin-section-copy" id="pso-profile-chat-copy">Your membership thread opens here without taking you back to the membership hub.</p>
         </div>
         <button class="pso-button pso-button-secondary" id="pso-profile-chat-close" type="button">Close</button>
+      </div>
+
+      <div class="pso-profile-admin-chat-grid" id="pso-profile-admin-chat-grid" hidden>
+        <div class="pso-profile-admin-chat-directory" id="pso-profile-admin-chat-directory"></div>
+        <div class="pso-profile-admin-chat-thread-head">
+          <strong id="pso-profile-admin-chat-participant">Select a conversation</strong>
+          <p class="pso-signin-section-copy" id="pso-profile-admin-chat-meta">Choose a member on the left to view their thread.</p>
+        </div>
       </div>
 
       <div class="pso-chat-window" id="pso-profile-chat-messages"></div>
@@ -354,9 +362,15 @@
   const profileChatModal = document.getElementById('pso-profile-chat-modal');
   const profileChatBackdrop = document.getElementById('pso-profile-chat-backdrop');
   const profileChatClose = document.getElementById('pso-profile-chat-close');
+  const profileChatTitle = document.getElementById('pso-profile-chat-title');
+  const profileChatCopy = document.getElementById('pso-profile-chat-copy');
   const profileChatMessages = document.getElementById('pso-profile-chat-messages');
   const profileChatInput = document.getElementById('pso-profile-chat-input');
   const profileChatSend = document.getElementById('pso-profile-chat-send');
+  const profileAdminChatGrid = document.getElementById('pso-profile-admin-chat-grid');
+  const profileAdminChatDirectory = document.getElementById('pso-profile-admin-chat-directory');
+  const profileAdminChatParticipant = document.getElementById('pso-profile-admin-chat-participant');
+  const profileAdminChatMeta = document.getElementById('pso-profile-admin-chat-meta');
   const memberOnlyElements = Array.from(document.querySelectorAll('[data-member-only]'));
   const memberPanels = Array.from(document.querySelectorAll('[data-member-panel]'));
   const summaryGrid = document.getElementById('pso-profile-summary-grid');
@@ -366,6 +380,8 @@
 
   let currentUser = null;
   let currentMemberCard = null;
+  let selectedAdminChatUid = '';
+  let adminChatThreads = [];
   let favoriteState = {
     performances: [],
     musicians: []
@@ -561,14 +577,20 @@
     profileChatMessages.scrollTop = profileChatMessages.scrollHeight;
   }
 
-  async function renderProfileChatThread() {
+  async function renderProfileChatThread(threadUid) {
     if (!currentUser) {
       renderProfileChatMessages([]);
       return;
     }
 
+    const uid = threadUid || currentUser.uid;
+    if (!uid) {
+      renderProfileChatMessages([]);
+      return;
+    }
+
     try {
-      const response = await fetch(`${pythonURI}/api/pso/chat/thread?thread_uid=${encodeURIComponent(currentUser.uid)}`, fetchOptions);
+      const response = await fetch(`${pythonURI}/api/pso/chat/thread?thread_uid=${encodeURIComponent(uid)}`, fetchOptions);
       if (!response.ok) {
         renderProfileChatMessages([]);
         return;
@@ -581,9 +603,113 @@
     }
   }
 
+  function renderProfileAdminChatDirectory() {
+    if (!profileAdminChatDirectory) return;
+
+    if (!adminChatThreads.length) {
+      profileAdminChatDirectory.innerHTML = '<article class="pso-profile-admin-chat-empty"><strong>No chats yet.</strong><p>Chats appear here when members send their first message.</p></article>';
+      selectedAdminChatUid = '';
+      if (profileAdminChatParticipant) profileAdminChatParticipant.textContent = 'Select a conversation';
+      if (profileAdminChatMeta) profileAdminChatMeta.textContent = 'Choose a member on the left to view their thread.';
+      renderProfileChatMessages([]);
+      return;
+    }
+
+    if (!selectedAdminChatUid) {
+      selectedAdminChatUid = adminChatThreads[0].uid;
+    }
+
+    profileAdminChatDirectory.innerHTML = adminChatThreads.map((entry) => {
+      const isActive = String(entry.uid) === String(selectedAdminChatUid);
+      const status = entry.request_status || entry.role || 'member';
+      const preview = entry.latest_text || 'No messages yet.';
+
+      return '<button class="pso-admin-chat-entry' + (isActive ? ' is-active' : '') + '" type="button" data-profile-chat-uid="' + escapeHtml(entry.uid) + '">' +
+        '<div class="pso-admin-chat-entry-head">' +
+          '<strong>' + escapeHtml(entry.name || entry.uid) + '</strong>' +
+          '<span class="pso-profile-role-pill pso-admin-status-pill is-' + escapeHtml(status) + '">' + escapeHtml(status) + '</span>' +
+        '</div>' +
+        '<span class="pso-admin-chat-entry-meta">' +
+          escapeHtml(entry.uid) +
+          (entry.request_instrument ? ' • ' + escapeHtml(entry.request_instrument) : '') +
+          (entry.email ? ' • ' + escapeHtml(entry.email) : '') +
+        '</span>' +
+        '<p>' + escapeHtml(preview) + '</p>' +
+      '</button>';
+    }).join('');
+
+    Array.from(profileAdminChatDirectory.querySelectorAll('[data-profile-chat-uid]')).forEach((button) => {
+      button.addEventListener('click', async () => {
+        selectedAdminChatUid = button.getAttribute('data-profile-chat-uid') || '';
+        renderProfileAdminChatDirectory();
+        await renderSelectedAdminProfileThread(selectedAdminChatUid);
+      });
+    });
+  }
+
+  async function loadAdminProfileChatThreads() {
+    if (!currentUser || !isAdminUser(currentUser)) {
+      adminChatThreads = [];
+      selectedAdminChatUid = '';
+      return;
+    }
+
+    const response = await fetch(`${pythonURI}/api/pso/admin/chat/threads`, fetchOptions);
+    if (!response.ok) {
+      throw new Error(await parseResponseMessage(response, 'Unable to load member chats right now.'));
+    }
+
+    const data = await response.json();
+    adminChatThreads = Array.isArray(data && data.threads) ? data.threads : [];
+    if (!adminChatThreads.some((entry) => String(entry.uid) === String(selectedAdminChatUid))) {
+      selectedAdminChatUid = adminChatThreads.length ? adminChatThreads[0].uid : '';
+    }
+  }
+
+  async function renderSelectedAdminProfileThread(uid) {
+    if (!uid) {
+      if (profileAdminChatParticipant) profileAdminChatParticipant.textContent = 'Select a conversation';
+      if (profileAdminChatMeta) profileAdminChatMeta.textContent = 'Choose a member on the left to view their thread.';
+      renderProfileChatMessages([]);
+      return;
+    }
+
+    const activeThread = adminChatThreads.find((entry) => String(entry.uid) === String(uid)) || null;
+    if (profileAdminChatParticipant) profileAdminChatParticipant.textContent = activeThread ? (activeThread.name || activeThread.uid) : uid;
+
+    const meta = [];
+    if (activeThread && activeThread.uid) meta.push(escapeHtml(activeThread.uid));
+    if (activeThread && activeThread.request_status) meta.push('Status: ' + escapeHtml(activeThread.request_status));
+    if (activeThread && activeThread.request_instrument) meta.push(escapeHtml(activeThread.request_instrument));
+    if (activeThread && activeThread.email) meta.push(escapeHtml(activeThread.email));
+    if (profileAdminChatMeta) profileAdminChatMeta.innerHTML = meta.length ? meta.join(' • ') : 'Member chat thread';
+
+    await renderProfileChatThread(uid);
+  }
+
   async function openProfileChatModal() {
     if (!profileChatModal || !currentUser) return;
-    await renderProfileChatThread();
+
+    if (isAdminUser(currentUser)) {
+      if (profileChatTitle) profileChatTitle.textContent = 'Member Chats';
+      if (profileChatCopy) profileChatCopy.textContent = 'Open any member thread below and reply directly without leaving your profile.';
+      if (profileAdminChatGrid) profileAdminChatGrid.hidden = false;
+
+      try {
+        await loadAdminProfileChatThreads();
+        renderProfileAdminChatDirectory();
+        await renderSelectedAdminProfileThread(selectedAdminChatUid);
+      } catch (error) {
+        setMessage('error', error.message || 'Unable to load member chats right now.');
+        renderProfileChatMessages([]);
+      }
+    } else {
+      if (profileChatTitle) profileChatTitle.textContent = 'Chat With Admin';
+      if (profileChatCopy) profileChatCopy.textContent = 'Your membership thread opens here without taking you back to the membership hub.';
+      if (profileAdminChatGrid) profileAdminChatGrid.hidden = true;
+      await renderProfileChatThread();
+    }
+
     profileChatModal.hidden = false;
     document.body.classList.add('pso-chat-modal-open');
     if (profileChatInput) profileChatInput.focus();
@@ -600,6 +726,12 @@
     const text = profileChatInput.value.trim();
     if (!text) return;
 
+    const threadUid = isAdminUser(currentUser) ? selectedAdminChatUid : currentUser.uid;
+    if (!threadUid) {
+      setMessage('error', 'Select a member chat first.');
+      return;
+    }
+
     profileChatSend.disabled = true;
 
     try {
@@ -607,7 +739,7 @@
         ...fetchOptions,
         method: 'POST',
         body: JSON.stringify({
-          thread_uid: currentUser.uid,
+          thread_uid: threadUid,
           text: text
         })
       });
@@ -617,7 +749,13 @@
       }
 
       profileChatInput.value = '';
-      await renderProfileChatThread();
+      if (isAdminUser(currentUser)) {
+        await loadAdminProfileChatThreads();
+        renderProfileAdminChatDirectory();
+        await renderSelectedAdminProfileThread(threadUid);
+      } else {
+        await renderProfileChatThread();
+      }
     } catch (error) {
       setMessage('error', error.message || 'Unable to send your message right now.');
     } finally {
@@ -628,7 +766,11 @@
   function updateMembershipAction(profile) {
     if (!membershipActionLink) return;
 
-    if (isRegisteredMember(profile) && !isAdminUser(currentUser)) {
+    if (isAdminUser(currentUser)) {
+      membershipActionLink.textContent = 'Open Member Chats';
+      membershipActionLink.href = '#';
+      membershipActionLink.setAttribute('aria-haspopup', 'dialog');
+    } else if (canOpenChatWithAdmin(profile)) {
       membershipActionLink.textContent = 'Open Chat With Admin';
       membershipActionLink.href = '#';
       membershipActionLink.setAttribute('aria-haspopup', 'dialog');
@@ -738,11 +880,25 @@
   }
 
   function isRegisteredMember(profile) {
-    return isAdminUser(currentUser) || Boolean(profile && profile.memberRegistered);
+    if (isAdminUser(currentUser)) return true;
+
+    var role = String(currentUser && currentUser.role || '').toLowerCase();
+    if (role === 'member' || role === 'musician') return true;
+    if (role.indexOf('member') !== -1 || role.indexOf('musician') !== -1) return true;
+    if (currentUser && currentUser.is_member === true) return true;
+    if (String(currentUser && currentUser.member_request_status || '').toLowerCase() === 'approved') return true;
+
+    return Boolean(profile && profile.memberRegistered);
   }
 
   function isPendingMember(profile) {
     return !isAdminUser(currentUser) && Boolean(profile && profile.memberRequestPending && !profile.memberRegistered);
+  }
+
+  function canOpenChatWithAdmin(profile) {
+    if (!currentUser) return false;
+    if (isAdminUser(currentUser)) return true;
+    return isRegisteredMember(profile) || isPendingMember(profile);
   }
 
   function makeDefaultProfile(user) {
@@ -1113,6 +1269,11 @@
     mergedProfile.memberRegistered = isAdminUser(user) || user.is_member === true;
     mergedProfile.memberRequestPending = !mergedProfile.memberRegistered && user.member_request_status === 'pending';
 
+    if (String(user && user.member_request_status || '').toLowerCase() === 'approved') {
+      mergedProfile.memberRegistered = true;
+      mergedProfile.memberRequestPending = false;
+    }
+
     if (Object.prototype.hasOwnProperty.call(user || {}, 'bio')) {
       mergedProfile.bio = String(user.bio || '');
     }
@@ -1130,6 +1291,10 @@
         const requestData = statusData && statusData.request ? statusData.request : null;
         mergedProfile.memberRegistered = mergedProfile.memberRegistered || statusData.is_member === true;
         mergedProfile.memberRequestPending = !mergedProfile.memberRegistered && statusData.member_request_status === 'pending';
+        if (String(statusData && statusData.member_request_status || '').toLowerCase() === 'approved') {
+          mergedProfile.memberRegistered = true;
+          mergedProfile.memberRequestPending = false;
+        }
         if (requestData) {
           mergedProfile.requestName = requestData.name || mergedProfile.requestName;
           mergedProfile.requestEmail = requestData.email || mergedProfile.requestEmail;
@@ -1372,9 +1537,20 @@
   if (membershipActionLink) {
     membershipActionLink.addEventListener('click', async (event) => {
       var profile = currentUser ? loadLocalProfile(currentUser) : null;
-      if (!currentUser || !isRegisteredMember(profile) || isAdminUser(currentUser)) {
+      if (!currentUser) {
         return;
       }
+
+      if (isAdminUser(currentUser)) {
+        event.preventDefault();
+        await openProfileChatModal();
+        return;
+      }
+
+      if (!canOpenChatWithAdmin(profile)) {
+        return;
+      }
+
       event.preventDefault();
       await openProfileChatModal();
     });
