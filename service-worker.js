@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ocs-pwa-v1';
+const CACHE_NAME = 'ocs-pwa-v2';
 const OFFLINE_URL = '/mobile/';
 
 const PRECACHE_ASSETS = [
@@ -33,6 +33,27 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+  const isPowayRoute = url.pathname.startsWith('/powayorchestra/');
+  const isPowayAsset = url.pathname.startsWith('/assets/js/capstones/powayorchestra/')
+    || url.pathname.startsWith('/assets/css/powayorchestra/');
+
+  // Keep auth-sensitive Poway routes and scripts fresh to avoid stale login/session UI loops.
+  if (isPowayRoute || isPowayAsset) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200 && response.type === 'basic') {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then((cached) => cached || caches.match(OFFLINE_URL)))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(request).then((cached) => {

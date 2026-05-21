@@ -256,8 +256,8 @@
         signInLink.textContent = "Open Profile";
         signInLink.href = "/powayorchestra/profile/";
       } else {
-        signInLink.textContent = "Go to Sign In";
-        signInLink.href = "/powayorchestra/signin/";
+        signInLink.textContent = "Manage Account";
+        signInLink.href = "/powayorchestra/profile/";
       }
     }
   }
