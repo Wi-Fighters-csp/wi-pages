@@ -11,136 +11,98 @@
     backendURI = 'https://wifighters.opencodingsociety.com';
   }
   var progressionEndpoint = backendURI + '/api/pso/progression';
+  var PROGRESSION_SCHEMA_VERSION = 2;
+  var ORCHESTRA_GAME_KEYS = ['game-hub', 'orchestra-builder', 'virtual-conductor', 'tune-the-orchestra'];
 
   var QUESTS = [
-    {
-      id: 'welcome-overture',
-      title: 'Welcome Overture',
-      description: 'Visit your first Poway page while signed in.',
-      metric: 'uniquePages',
-      goal: 1,
-      rewardXp: 30
-    },
     {
       id: 'season-scout',
       title: 'Season Scout',
       description: 'Explore three Poway pages.',
       metric: 'uniquePages',
       goal: 3,
-      rewardXp: 55
+      rewardXp: 100
     },
     {
-      id: 'season-cartographer',
-      title: 'Season Cartographer',
-      description: 'Explore five Poway pages across the site.',
-      metric: 'uniquePages',
-      goal: 5,
-      rewardXp: 70
+      id: 'orchestra-spotlight',
+      title: 'Orchestra Spotlight',
+      description: 'Read about the orchestra, conductor, and musicians pages.',
+      metric: 'researchPages',
+      goal: 3,
+      rewardXp: 150
     },
     {
-      id: 'section-walkthrough',
-      title: 'Section Walkthrough',
-      description: 'View four different sections or panels.',
-      metric: 'sectionViews',
-      goal: 4,
-      rewardXp: 65
-    },
-    {
-      id: 'full-house-tour',
-      title: 'Full House Tour',
-      description: 'View eight different sections or panels.',
-      metric: 'sectionViews',
-      goal: 8,
-      rewardXp: 78
-    },
-    {
-      id: 'keen-listener',
-      title: 'Keen Listener',
-      description: 'Play two media or instrument samples.',
-      metric: 'mediaInteractions',
-      goal: 2,
-      rewardXp: 70
-    },
-    {
-      id: 'deep-listener',
-      title: 'Deep Listener',
-      description: 'Play five media or instrument samples.',
-      metric: 'mediaInteractions',
-      goal: 5,
-      rewardXp: 88
-    },
-    {
-      id: 'patron-path',
-      title: 'Patron Path',
-      description: 'Open two support, ticket, or donation actions.',
-      metric: 'supportInteractions',
-      goal: 2,
+      id: 'instrument-investigator',
+      title: 'Instrument Investigator',
+      description: 'Search for a specific instrument.',
+      metric: 'instrumentSearches',
+      goal: 1,
       rewardXp: 50
     },
     {
-      id: 'community-circle',
-      title: 'Community Circle',
-      description: 'Open three support, ticket, or donation actions.',
-      metric: 'supportInteractions',
-      goal: 3,
-      rewardXp: 65
-    },
-    {
-      id: 'roster-reader',
-      title: 'Roster Reader',
-      description: 'Search or filter the musician directory twice.',
-      metric: 'directoryInteractions',
-      goal: 2,
-      rewardXp: 60
-    },
-    {
-      id: 'section-specialist',
-      title: 'Section Specialist',
-      description: 'Search or filter the musician directory five times.',
-      metric: 'directoryInteractions',
+      id: 'recording-marathon',
+      title: 'Recording Marathon',
+      description: 'Listen to five different musician recordings.',
+      metric: 'uniqueRecordingKeys',
       goal: 5,
-      rewardXp: 82
+      rewardXp: 200
     },
     {
-      id: 'builder-challenge',
-      title: 'Builder Challenge',
-      description: 'Interact with the orchestra builder.',
-      metric: 'builderInteractions',
+      id: 'bio-browser',
+      title: 'Bio Browser',
+      description: 'View at least five different musician cards or bios.',
+      metric: 'uniqueMusicianCards',
+      goal: 5,
+      rewardXp: 300
+    },
+    {
+      id: 'calendar-check',
+      title: 'Calendar Check',
+      description: 'Check out the concert calendar.',
+      metric: 'viewedConcertCalendar',
       goal: 1,
-      rewardXp: 80
+      rewardXp: 100
     },
     {
-      id: 'stage-architect',
-      title: 'Stage Architect',
-      description: 'Interact with the orchestra builder three times.',
-      metric: 'builderInteractions',
-      goal: 3,
-      rewardXp: 96
-    },
-    {
-      id: 'profile-keeper',
-      title: 'Profile Keeper',
-      description: 'Save a profile, favorite list, member card, or request action.',
-      metric: 'profileActions',
+      id: 'ticket-tour',
+      title: 'Ticket Tour',
+      description: 'Check out the tickets section.',
+      metric: 'viewedTicketsSection',
       goal: 1,
-      rewardXp: 85
+      rewardXp: 100
     },
     {
-      id: 'ensemble-steward',
-      title: 'Ensemble Steward',
-      description: 'Complete three profile or account actions.',
-      metric: 'profileActions',
-      goal: 3,
-      rewardXp: 92
+      id: 'first-play',
+      title: 'First Play',
+      description: 'Play at least one recording.',
+      metric: 'recordingPlays',
+      goal: 1,
+      rewardXp: 150
+    },
+    {
+      id: 'game-starter',
+      title: 'Game Starter',
+      description: 'Play at least one orchestra game.',
+      metric: 'gamesPlayed',
+      goal: 1,
+      rewardXp: 50
+    },
+    {
+      id: 'orchestra-game-master',
+      title: 'Orchestra Game Master',
+      description: 'Play all orchestra games.',
+      metric: 'uniqueGames',
+      goal: ORCHESTRA_GAME_KEYS.length,
+      rewardXp: 200
     }
   ];
 
   var LEVELS = [
     { title: 'Beginner', xp: 0, requiredQuests: 0 },
-    { title: 'Section Member', xp: 120, requiredQuests: 1 },
-    { title: 'Principal', xp: 280, requiredQuests: 4 },
-    { title: 'Concertmaster', xp: 520, requiredQuests: 8 },
-    { title: 'Maestro', xp: 760, requiredQuests: QUESTS.length }
+    { title: 'Section Member', xp: 250, requiredQuests: 2 },
+    { title: 'Principal', xp: 600, requiredQuests: 4 },
+    { title: 'Concertmaster', xp: 950, requiredQuests: 7 },
+    { title: 'Maestro', xp: 1400, requiredQuests: QUESTS.length }
   ];
 
   var UI_STORAGE_KEY = 'pso-progression:ui';
@@ -160,17 +122,21 @@
   function defaultMetrics() {
     return {
       uniquePages: [],
-      sectionViews: [],
-      mediaInteractions: 0,
-      supportInteractions: 0,
-      directoryInteractions: 0,
-      builderInteractions: 0,
-      profileActions: 0
+      researchPages: [],
+      instrumentSearches: 0,
+      uniqueRecordingKeys: [],
+      recordingPlays: 0,
+      uniqueMusicianCards: [],
+      viewedConcertCalendar: 0,
+      viewedTicketsSection: 0,
+      gamesPlayed: 0,
+      uniqueGames: []
     };
   }
 
   function defaultState() {
     return {
+      schemaVersion: PROGRESSION_SCHEMA_VERSION,
       xp: 0,
       completedQuests: [],
       metrics: defaultMetrics(),
@@ -181,17 +147,27 @@
   function normalizeProgressionState(raw) {
     var baseState = defaultState();
     var merged = Object.assign({}, baseState, raw || {});
+    var schemaVersion = Number(merged.schemaVersion) || 0;
+    if (schemaVersion !== PROGRESSION_SCHEMA_VERSION) {
+      return defaultState();
+    }
+
     merged.metrics = Object.assign({}, baseState.metrics, raw && raw.metrics ? raw.metrics : {});
     merged.metrics.uniquePages = Array.isArray(merged.metrics.uniquePages) ? merged.metrics.uniquePages : [];
-    merged.metrics.sectionViews = Array.isArray(merged.metrics.sectionViews) ? merged.metrics.sectionViews : [];
+    merged.metrics.researchPages = Array.isArray(merged.metrics.researchPages) ? merged.metrics.researchPages : [];
+    merged.metrics.uniqueRecordingKeys = Array.isArray(merged.metrics.uniqueRecordingKeys) ? merged.metrics.uniqueRecordingKeys : [];
+    merged.metrics.uniqueMusicianCards = Array.isArray(merged.metrics.uniqueMusicianCards) ? merged.metrics.uniqueMusicianCards : [];
+    merged.metrics.uniqueGames = Array.isArray(merged.metrics.uniqueGames) ? merged.metrics.uniqueGames : [];
     merged.completedQuests = Array.isArray(merged.completedQuests) ? merged.completedQuests : [];
     merged.xp = Number(merged.xp) || 0;
     merged.lastUpdatedAt = typeof merged.lastUpdatedAt === 'string' ? merged.lastUpdatedAt : '';
+    merged.schemaVersion = PROGRESSION_SCHEMA_VERSION;
     return merged;
   }
 
   function progressionPayload() {
     return {
+      schemaVersion: PROGRESSION_SCHEMA_VERSION,
       xp: Number(state && state.xp) || 0,
       completedQuests: Array.isArray(state && state.completedQuests) ? state.completedQuests.slice() : [],
       metrics: Object.assign({}, defaultMetrics(), state && state.metrics ? state.metrics : {}),
@@ -214,12 +190,15 @@
     return (Number(candidate.xp) || 0) +
       (Array.isArray(candidate.completedQuests) ? candidate.completedQuests.length * 100 : 0) +
       (Array.isArray(metrics.uniquePages) ? metrics.uniquePages.length * 10 : 0) +
-      (Array.isArray(metrics.sectionViews) ? metrics.sectionViews.length * 8 : 0) +
-      (Number(metrics.mediaInteractions) || 0) * 6 +
-      (Number(metrics.supportInteractions) || 0) * 6 +
-      (Number(metrics.directoryInteractions) || 0) * 6 +
-      (Number(metrics.builderInteractions) || 0) * 8 +
-      (Number(metrics.profileActions) || 0) * 8;
+      (Array.isArray(metrics.researchPages) ? metrics.researchPages.length * 14 : 0) +
+      (Number(metrics.instrumentSearches) || 0) * 8 +
+      (Array.isArray(metrics.uniqueRecordingKeys) ? metrics.uniqueRecordingKeys.length * 18 : 0) +
+      (Number(metrics.recordingPlays) || 0) * 10 +
+      (Array.isArray(metrics.uniqueMusicianCards) ? metrics.uniqueMusicianCards.length * 20 : 0) +
+      (Number(metrics.viewedConcertCalendar) || 0) * 12 +
+      (Number(metrics.viewedTicketsSection) || 0) * 12 +
+      (Number(metrics.gamesPlayed) || 0) * 10 +
+      (Array.isArray(metrics.uniqueGames) ? metrics.uniqueGames.length * 25 : 0);
   }
 
   function chooseProgressionState(primaryState, secondaryState) {
@@ -533,12 +512,11 @@
   function derivedBadges() {
     if (!state) return [];
     var badges = [];
-    if (state.metrics.uniquePages.length >= 1) badges.push('First Visit');
     if (state.metrics.uniquePages.length >= 3) badges.push('Season Scout');
-    if (state.metrics.mediaInteractions >= 2) badges.push('Keen Listener');
-    if (state.metrics.directoryInteractions >= 2) badges.push('Roster Reader');
-    if (state.metrics.builderInteractions >= 1) badges.push('Stage Planner');
-    if (state.metrics.supportInteractions >= 2) badges.push('Patron Pulse');
+    if (state.metrics.researchPages.length >= 3) badges.push('Orchestra Spotlight');
+    if (state.metrics.uniqueRecordingKeys.length >= 5) badges.push('Recording Marathon');
+    if (state.metrics.uniqueMusicianCards.length >= 5) badges.push('Bio Browser');
+    if (state.metrics.uniqueGames.length >= 1) badges.push('Game Starter');
     if (state.completedQuests.length >= 4) badges.push('Principal Focus');
     if (currentLevel().title === 'Concertmaster') badges.push('Concertmaster');
     if (currentLevel().title === 'Maestro') badges.push('Maestro');
@@ -552,23 +530,21 @@
     return true;
   }
 
-  function recordUnique(metricName, key, xpAward) {
+  function recordUnique(metricName, key) {
     if (!currentUser || !state || !key) return;
     var items = state.metrics[metricName];
     if (!Array.isArray(items)) return;
     if (items.indexOf(key) !== -1) return;
     items.push(key);
-    state.xp += xpAward;
     refreshQuestCompletions();
     saveState();
     renderWidget();
   }
 
-  function incrementMetric(metricName, amount, xpAward, cooldownKey, waitMs) {
+  function incrementMetric(metricName, amount, cooldownKey, waitMs) {
     if (!currentUser || !state) return;
     if (cooldownKey && !withCooldown(cooldownKey, waitMs || 900)) return;
     state.metrics[metricName] = (Number(state.metrics[metricName]) || 0) + amount;
-    state.xp += xpAward;
     refreshQuestCompletions();
     saveState();
     renderWidget();
@@ -717,35 +693,130 @@
       .replace(/'/g, '&#39;');
   }
 
-  function sectionKey(node) {
-    if (!node) return '';
-    if (node.id) return node.id;
-    if (node.dataset && node.dataset.sectionId) return node.dataset.sectionId;
-    var heading = node.querySelector('h1, h2, h3, h4');
-    if (heading && heading.textContent) return heading.textContent.trim().toLowerCase();
+  function setupSectionTracking() {
+    return;
+  }
+
+  function addUniqueMetric(metricName, key) {
+    if (!state || !state.metrics || !key) return false;
+    var list = state.metrics[metricName];
+    if (!Array.isArray(list)) return false;
+    if (list.indexOf(key) !== -1) return false;
+    list.push(key);
+    return true;
+  }
+
+  function currentPathname() {
+    return String(location.pathname || '/').replace(/\/+$/, '') || '/';
+  }
+
+  function gameKeyForPath(pathname) {
+    var path = String(pathname || '').toLowerCase();
+    var hash = String(location.hash || '').toLowerCase();
+    if (path.indexOf('/orchestra-builder') !== -1) return 'orchestra-builder';
+    if (path.indexOf('/conductor') !== -1) return 'virtual-conductor';
+    if (path.indexOf('/games') !== -1) return 'game-hub';
+    if (path.indexOf('/media') !== -1 && hash.indexOf('tune-the-orchestra') !== -1) return 'tune-the-orchestra';
     return '';
   }
 
-  function setupSectionTracking() {
-    if (sectionObserver) return;
-    var observedNodes = document.querySelectorAll(
-      '.pso-foundation section[id], .pso-conductor-detail-card, .pso-signin-card, .pso-signin-panel, .pso-profile-card, .pso-member-profile-panel'
-    );
-    if (!observedNodes.length) return;
+  function recordPageVisit() {
+    if (!currentUser || !state || pageVisitRecorded) return;
+    pageVisitRecorded = true;
 
-    sectionObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting || entry.intersectionRatio < 0.45) return;
-        var key = sectionKey(entry.target);
-        if (!key) return;
-        recordUnique('sectionViews', key, 8);
-        sectionObserver.unobserve(entry.target);
-      });
-    }, { threshold: [0.45] });
+    var path = currentPathname();
+    var normalized = path.toLowerCase();
+    var didChange = false;
 
-    Array.prototype.forEach.call(observedNodes, function (node) {
-      sectionObserver.observe(node);
-    });
+    didChange = addUniqueMetric('uniquePages', path) || didChange;
+
+    if (normalized.indexOf('/about') !== -1) {
+      didChange = addUniqueMetric('researchPages', 'about') || didChange;
+    }
+    if (normalized.indexOf('/conductor') !== -1) {
+      didChange = addUniqueMetric('researchPages', 'conductor') || didChange;
+    }
+    if (normalized.indexOf('/musicians') !== -1) {
+      didChange = addUniqueMetric('researchPages', 'musicians') || didChange;
+    }
+
+    if (normalized.indexOf('/concert') !== -1 && Number(state.metrics.viewedConcertCalendar) < 1) {
+      state.metrics.viewedConcertCalendar = 1;
+      didChange = true;
+    }
+
+    if (normalized.indexOf('/tickets') !== -1 && Number(state.metrics.viewedTicketsSection) < 1) {
+      state.metrics.viewedTicketsSection = 1;
+      didChange = true;
+    }
+
+    var gameKey = gameKeyForPath(path);
+    if (gameKey) {
+      didChange = addUniqueMetric('uniqueGames', gameKey) || didChange;
+      var gameCount = Array.isArray(state.metrics.uniqueGames) ? state.metrics.uniqueGames.length : 0;
+      if (Number(state.metrics.gamesPlayed) < gameCount) {
+        state.metrics.gamesPlayed = gameCount;
+        didChange = true;
+      }
+    }
+
+    if (!didChange) return;
+    refreshQuestCompletions();
+    saveState();
+    renderWidget();
+  }
+
+  function keyFromText(value) {
+    return String(value || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
+  }
+
+  function mediaInteractionKey(node) {
+    if (!node) return '';
+    var dataAudio = node.getAttribute('data-audio') || node.getAttribute('data-family-audio-player-toggle');
+    if (dataAudio) return keyFromText(dataAudio);
+    if (node.dataset && node.dataset.mediaId) return keyFromText(node.dataset.mediaId);
+    if (node.id) return keyFromText(node.id);
+    var labelled = node.getAttribute('aria-label') || node.getAttribute('title') || node.textContent;
+    return keyFromText(currentPathname() + '|' + labelled);
+  }
+
+  function musicianCardKey(node) {
+    if (!node) return '';
+    if (node.dataset && node.dataset.musicianId) return keyFromText(node.dataset.musicianId);
+    if (node.dataset && node.dataset.memberId) return keyFromText(node.dataset.memberId);
+    if (node.getAttribute('href')) return keyFromText(node.getAttribute('href'));
+    if (node.id) return keyFromText(node.id);
+    var heading = node.querySelector('h1, h2, h3, h4, strong');
+    return keyFromText((heading && heading.textContent) || node.textContent);
+  }
+
+  function recordRecordingPlay(node, providedKey) {
+    if (!currentUser || !state) return;
+    var key = providedKey || mediaInteractionKey(node);
+    var cooldownKey = key ? ('recording:' + key) : 'recording:generic';
+    if (!withCooldown(cooldownKey, 700)) return;
+
+    var didChange = false;
+    state.metrics.recordingPlays = (Number(state.metrics.recordingPlays) || 0) + 1;
+    didChange = true;
+    if (key) {
+      didChange = addUniqueMetric('uniqueRecordingKeys', key) || didChange;
+    }
+
+    if (!didChange) return;
+    refreshQuestCompletions();
+    saveState();
+    renderWidget();
+  }
+
+  function recordMusicianCardView(node) {
+    if (!currentUser || !state) return;
+    var key = musicianCardKey(node);
+    if (!key) return;
+    if (!addUniqueMetric('uniqueMusicianCards', key)) return;
+    refreshQuestCompletions();
+    saveState();
+    renderWidget();
   }
 
   function setupClickTracking() {
@@ -753,28 +824,12 @@
       var target = event.target;
       var mediaButton = target.closest('[data-family-audio-player-toggle], .sample-play-sample-btn[data-audio], #pso-member-profile-sample, [data-media-card], .media-video-card, [data-hero-video-audio-toggle]');
       if (mediaButton) {
-        incrementMetric('mediaInteractions', 1, 10, 'media:' + (mediaButton.id || mediaButton.className), 1000);
+        recordRecordingPlay(mediaButton);
       }
 
-      var supportLink = target.closest('a[href*="/tickets/"], a[href*="/donate/"], a[href*="/support/"], a[href*="ticketsearch.com"]');
-      if (supportLink) {
-        recordUnique('uniquePages', location.pathname, 0);
-        incrementMetric('supportInteractions', 1, 12, 'support:' + supportLink.getAttribute('href'), 800);
-      }
-
-      var builderAction = target.closest('[data-builder-add], [data-builder-zone], [data-builder-reset], [data-builder-card]');
-      if (builderAction) {
-        incrementMetric('builderInteractions', 1, 14, 'builder-action', 900);
-      }
-
-      var profileAction = target.closest('#pso-profile-save, #pso-favorites-save, #pso-member-card-save, #pso-submit-button, #pso-signup-button, [data-request-action], [data-request-card-create]');
-      if (profileAction) {
-        incrementMetric('profileActions', 1, 16, 'profile-action:' + (profileAction.id || profileAction.dataset.requestAction || 'generic'), 900);
-      }
-
-      var directoryAction = target.closest('.musician-section-chip, .instrument-card, .musician-member-card');
+      var directoryAction = target.closest('.musician-member-card, .musician-card, .instrument-card, [data-musician-id], [data-musician-card]');
       if (directoryAction) {
-        incrementMetric('directoryInteractions', 1, 8, 'directory:' + (directoryAction.getAttribute('data-section-id') || directoryAction.className), 700);
+        recordMusicianCardView(directoryAction);
       }
     }, true);
   }
@@ -788,8 +843,7 @@
       searchCooldown = window.setTimeout(function () {
         var value = String(searchInput.value || '').trim().toLowerCase();
         if (value.length < 2) return;
-        recordUnique('sectionViews', 'search:' + value, 0);
-        incrementMetric('directoryInteractions', 1, 10, 'directory-search:' + value, 0);
+        incrementMetric('instrumentSearches', 1, 'instrument-search:' + value, 500);
       }, 320);
     });
   }
@@ -820,10 +874,7 @@
       if (useCachedState && progressionScore(cachedState) > progressionScore(serverState)) {
         queueSave(0);
       }
-      if (!pageVisitRecorded) {
-        pageVisitRecorded = true;
-        recordUnique('uniquePages', location.pathname, 18);
-      }
+      recordPageVisit();
       return state;
     }).catch(function (error) {
       if (error && error.code === 401) {
@@ -835,10 +886,7 @@
       persistCachedProgression();
       setupSectionTracking();
       renderWidget();
-      if (!pageVisitRecorded) {
-        pageVisitRecorded = true;
-        recordUnique('uniquePages', location.pathname, 18);
-      }
+      recordPageVisit();
       return state;
     });
   }
@@ -874,16 +922,17 @@
 
   function track(metricName, payload) {
     if (!currentUser || !state) return;
-    if (metricName === 'profile-action') {
-      incrementMetric('profileActions', 1, 16, 'profile-manual:' + (payload && payload.key || 'default'), 700);
-      return;
-    }
     if (metricName === 'media') {
-      incrementMetric('mediaInteractions', 1, 10, 'media-manual:' + (payload && payload.key || 'default'), 700);
+      recordRecordingPlay(null, keyFromText(payload && payload.key || 'manual-recording'));
       return;
     }
     if (metricName === 'builder') {
-      incrementMetric('builderInteractions', 1, 14, 'builder-manual:' + (payload && payload.key || 'default'), 700);
+      if (addUniqueMetric('uniqueGames', 'orchestra-builder')) {
+        state.metrics.gamesPlayed = Math.max(Number(state.metrics.gamesPlayed) || 0, state.metrics.uniqueGames.length);
+        refreshQuestCompletions();
+        saveState();
+        renderWidget();
+      }
       return;
     }
   }
