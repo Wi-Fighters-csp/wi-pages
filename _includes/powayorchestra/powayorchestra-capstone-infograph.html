@@ -25,7 +25,7 @@
 {% if pso_render_full_page or pso_render_section_list contains ',tickets,' %}{% include powayorchestra/sections/tickets.html %}{% endif %}
 {% if pso_render_full_page or pso_render_section_list contains ',media,' %}{% include powayorchestra/sections/media.html %}{% endif %}
 {% if pso_render_full_page or pso_render_section_list contains ',donate,' %}{% include powayorchestra/sections/donate.html %}{% endif %}
-{% if pso_render_full_page or pso_render_section_list contains ',join-orchestra,' %}{% include powayorchestra/sections/join.html %}{% endif %}
+{% if pso_render_section_list contains ',join-orchestra,' %}{% include powayorchestra/sections/join.html %}{% endif %}
 {% if pso_render_full_page or pso_render_section_list contains ',musician-info,' %}{% include powayorchestra/sections/musician-info.html %}{% endif %}
 {% if pso_render_full_page or pso_render_section_list contains ',games,' %}{% include powayorchestra/sections/games.html %}{% endif %}
 {% if pso_render_full_page or pso_render_section_list contains ',orchestra-builder,' %}{% include powayorchestra/sections/orchestra-builder.html %}{% endif %}
