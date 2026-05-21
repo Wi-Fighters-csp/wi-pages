@@ -201,8 +201,8 @@
             </select>
           </div>
           <div class="pso-field">
-            <label for="pso-member-card-owner-uid">Member UID</label>
-            <input id="pso-member-card-owner-uid" type="text" placeholder="Member user id">
+            <label for="pso-member-card-owner-email">Member Email</label>
+            <input id="pso-member-card-owner-email" type="email" placeholder="member@email.com">
           </div>
           <div class="pso-field">
             <label for="pso-member-card-owner-name">Member Name</label>
@@ -289,7 +289,7 @@
   const filterButtons = Array.from(document.querySelectorAll('[data-request-filter]'));
 
   const memberCardRequest = document.getElementById('pso-member-card-request');
-  const memberCardOwnerUid = document.getElementById('pso-member-card-owner-uid');
+  const memberCardOwnerEmail = document.getElementById('pso-member-card-owner-email');
   const memberCardOwnerName = document.getElementById('pso-member-card-owner-name');
   const memberCardInstrument = document.getElementById('pso-member-card-instrument');
   const memberCardFamily = document.getElementById('pso-member-card-family');
@@ -378,6 +378,17 @@
     return allRequests.filter((request) => request.status === 'approved');
   }
 
+  function resolveOwnerUidFromEmail(email) {
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    if (!normalizedEmail) return '';
+
+    const request = approvedRequests().find((entry) => {
+      return String(entry.email || '').trim().toLowerCase() === normalizedEmail;
+    });
+
+    return request ? String(request.uid || '').trim() : '';
+  }
+
   function inferFamilyAndSection(instrument, section) {
     const instrumentText = String(instrument || '').toLowerCase();
     const sectionText = String(section || '').toLowerCase();
@@ -425,7 +436,7 @@
   function fillMemberCardFormFromRequest(request) {
     if (!request) return;
     const inferred = inferFamilyAndSection(request.instrument, request.section);
-    memberCardOwnerUid.value = request.uid || '';
+    memberCardOwnerEmail.value = request.email || '';
     memberCardOwnerName.value = request.name || '';
     memberCardInstrument.value = request.instrument || '';
     memberCardFamily.value = inferred.family || request.section || '';
@@ -442,7 +453,7 @@
 
   function resetMemberCardForm() {
     memberCardRequest.value = '';
-    memberCardOwnerUid.value = '';
+    memberCardOwnerEmail.value = '';
     memberCardOwnerName.value = '';
     memberCardInstrument.value = '';
     memberCardFamily.value = '';
@@ -822,14 +833,20 @@
   });
 
   memberCardSave.addEventListener('click', async () => {
-    const ownerUid = memberCardOwnerUid.value.trim();
+    const ownerEmail = memberCardOwnerEmail.value.trim();
     const ownerName = memberCardOwnerName.value.trim();
     const instrument = memberCardInstrument.value.trim();
     const family = memberCardFamily.value;
     const sectionId = memberCardSectionId.value;
+    const ownerUid = resolveOwnerUidFromEmail(ownerEmail);
 
-    if (!ownerUid || !ownerName || !instrument || !family || !sectionId) {
-      setMemberCardStatus('Member UID, name, instrument, family, and roster section are all required.');
+    if (!ownerEmail || !ownerName || !instrument || !family || !sectionId) {
+      setMemberCardStatus('Member email, name, instrument, family, and roster section are all required.');
+      return;
+    }
+
+    if (!ownerUid) {
+      setMemberCardStatus('Could not find an approved member with that email. Choose an approved member or use their approved request email.');
       return;
     }
 

@@ -80,8 +80,8 @@
 
           <form class="pso-signin-form" id="pso-signin-form">
             <div class="pso-field">
-              <label for="pso-uid">User ID</label>
-              <input id="pso-uid" name="uid" type="text" autocomplete="username" placeholder="your orchestra user id" required>
+              <label for="pso-email">Email</label>
+              <input id="pso-email" name="email" type="email" autocomplete="email" placeholder="your orchestra email" required>
             </div>
 
             <div class="pso-field">
@@ -115,8 +115,8 @@
             </div>
 
             <div class="pso-field">
-              <label for="pso-signup-uid">User ID</label>
-              <input id="pso-signup-uid" name="uid" type="text" autocomplete="username" placeholder="choose a user id" required>
+              <label for="pso-signup-email">Email</label>
+              <input id="pso-signup-email" name="email" type="email" autocomplete="email" placeholder="your email" required>
             </div>
 
             <div class="pso-field">
@@ -286,7 +286,7 @@
     setMessage('info', 'Signing you in and preparing your orchestra session...');
 
     const credentials = {
-      uid: document.getElementById('pso-uid').value.trim(),
+      email: document.getElementById('pso-email').value.trim(),
       password: document.getElementById('pso-password').value
     };
 
@@ -294,7 +294,11 @@
       const response = await fetch(`${pythonURI}/api/authenticate`, {
         ...fetchOptions,
         method: 'POST',
-        body: JSON.stringify(credentials)
+        body: JSON.stringify({
+          email: credentials.email,
+          uid: credentials.email,
+          password: credentials.password
+        })
       });
 
       if (!response.ok) {
@@ -302,7 +306,7 @@
       }
 
       const data = await response.json();
-      const signedInUser = data && data.user ? data.user : { name: credentials.uid, uid: credentials.uid };
+      const signedInUser = data && data.user ? data.user : { name: credentials.email, uid: credentials.email, email: credentials.email };
       const destinationUrl = isAdminUser(signedInUser) ? adminUrl : homeUrl;
 
       setMessage('success', 'Sign in successful. Returning you to the orchestra page...');
@@ -335,7 +339,7 @@
 
     const payload = {
       name: document.getElementById('pso-signup-name').value.trim(),
-      uid: document.getElementById('pso-signup-uid').value.trim(),
+      email: document.getElementById('pso-signup-email').value.trim(),
       password: document.getElementById('pso-signup-password').value
     };
 
@@ -343,21 +347,26 @@
       const response = await fetch(`${pythonURI}/api/pso/signup`, {
         ...fetchOptions,
         method: 'POST',
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          name: payload.name,
+          email: payload.email,
+          uid: payload.email,
+          password: payload.password
+        })
       });
 
       if (!response.ok) {
         throw new Error(await parseResponseMessage(response, 'Account creation failed. Please review your information and try again.'));
       }
 
-      document.getElementById('pso-uid').value = payload.uid;
+      document.getElementById('pso-email').value = payload.email;
       document.getElementById('pso-password').value = payload.password;
       signupForm.reset();
       setSignupMessage('success', 'Account created and signed in. Returning you to the orchestra page...');
       setMessage('success', `Welcome, ${payload.name}. Your orchestra account is ready.`);
-      setAccountLinks({ name: payload.name, uid: payload.uid });
+      setAccountLinks({ name: payload.name, uid: payload.email, email: payload.email });
       if (window.PSOGamification) {
-        window.PSOGamification.hydrateAuthenticatedUser({ name: payload.name, uid: payload.uid, role: 'user' });
+        window.PSOGamification.hydrateAuthenticatedUser({ name: payload.name, uid: payload.email, email: payload.email, role: 'user' });
         window.PSOGamification.track('profile-action', { key: 'signup' });
       }
       showActions();
