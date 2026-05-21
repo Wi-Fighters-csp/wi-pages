@@ -89,6 +89,31 @@
     return role === "admin" || role === "superadmin";
   }
 
+  function normalizeUserIdentity(user) {
+    if (!user || typeof user !== "object") return null;
+
+    var normalized = Object.assign({}, user);
+    var uid = String(normalized.uid || "").trim();
+    var email = String(normalized.email || "").trim();
+
+    if (!uid && email) {
+      uid = email;
+    }
+
+    if (!email && uid && uid.indexOf("@") !== -1) {
+      email = uid;
+    }
+
+    normalized.uid = uid;
+    normalized.email = email;
+
+    if (!normalized.uid && !normalized.email && !normalized.name) {
+      return null;
+    }
+
+    return normalized;
+  }
+
   function getRequestForUid(uid) {
     return allRequests.find(function (request) {
       return String(request.uid) === String(uid);
@@ -789,14 +814,15 @@
         return response.json();
       })
       .then(function (data) {
-        currentUser = data && data.uid ? data : null;
+        currentUser = normalizeUserIdentity(data);
         return loadRequests();
       })
       .then(function () {
         return loadServerMembershipState(currentUser);
       })
       .then(function (resolvedUser) {
-        currentUser = resolvedUser && resolvedUser.uid ? resolvedUser : currentUser;
+        var normalizedResolvedUser = normalizeUserIdentity(resolvedUser);
+        currentUser = normalizedResolvedUser || currentUser;
 
         if (currentUser && isAdmin(currentUser)) {
           return loadAdminThreads();
