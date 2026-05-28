@@ -1,31 +1,12 @@
 # Introduction
 
-Founded and maintained by John Mortensen.
+Project base provided by John Mortensen, expanded and maintained by Hope Fune, Kailyn Sanford, Meryl Chen, Laya Balaji.
 
-Open Coding Society `Pages` is a project designed to support students in their Computer Science and Software Engineering education. It offers a wide range of resources including tech talks, code examples, and educational blogs.
-
-This GitHub Pages repository can be customized by the blogger to support computer science learning as the student works through the pathways of using Javascript, Python/Flask, Java/Spring. It is intended to support course work for Computer Science and Software Engineering (CSSE), AP Computer Science Principles (APCSP or CSP), and AP Computer Science 'A' (APCSA, or CSA).
-
-"Open Coding Society's instructional model is grounded in **Connectivism**, recognizing that learning happens through diverse networks of people, platforms, and AI. OCS is refining `pages` using **Merrill's structure**, deepening learning through **Fink**, ensuring access via **UDL**, and supporting our classroom through **Agile and Design Thinking ceremonies**, with a touch of **Gagné** to focus each classroom day. OCS wants to create projects that support learning for today's digital, open, and connected world."
-
-## Student Requirements
-
-HS students will have the opportunity to create their personal GitHub Pages repository as they progress through their coursework.
-In general, students and instructors are expected to use GitHub Pages to build lessons, complete classroom hacks/challenges and perform exploratory work.
-Exchange of information from this repository to you personal GitHub Pages can be done in many ways...
-
-1. sharing a file, ie: `wget "raw-link.ipynb"`
-2. creating a template from this repository
-3. creating a fork to be shared by you and team members
-4. etc.
-
----
+This page is a prototype website for the Poway Symphony Orchestra, designed to test ideas and features for their website. This website was designed to be expanded upon and designed to be maintained by others even without coding experience. 
 
 ## History
 
-This project is in its 4th revision (aka 4.0).
-
-The project was initially based on a project called Fastpages. But this project has diverged from those roots into an independent entity, in fact most things (like the build system), are completely different.  The decision to separate from Fastpages was influenced by it's deprecation by the authors.  It is believed by our community that the authors of Fastpages turned toward the support of Quatro.  After that change of direction Fastpages did not align with the Instructors's goals. Thus, Open Coding Society 'Pages' has more of a raw development and classroom blogging purpose. But, we are grateful to Fastpages for their inspiration.  But, we are grateful to Fastpages for their inspiration.
+This project was started in March 2026 for the third trimester of the Del Norte High School school year. It was presented to the board members of the Poway Symphony Orchestra at the Del Norte CTE fair, which was hosted on May 21st, 2026. It is still in beta, and is a prototype not yet designed for publish or finalized. 
 
 ### License
 
@@ -33,16 +14,14 @@ The Apache license has its roots in Fastpages.  Thus, it carries that license fo
 
 ### Key Features
 
-- **Code Examples**: Provides practical coding examples in JavaScript, including a platformer game, and frontend code for user databases using Python and Java backends.
-- **Educational Blogs**: Offers instructional content on various topics such as developer tools setup, deployment on AWS, SQL databases, machine learning, and data structures. It utilizes Jupyter Notebooks for interactive lessons and coding challenges, often referred to as `hacks`.
-- **Tools and Integrations**: Features GitHub actions for blog publishing, Utterances for blog commenting, local development support via Makefile and scripts, and styling with the Minima Theme and SASS. It also includes an Agile Toolkit to assist in Student Teaching, Assignment Tracking, Live Reviews, and more.
-- **Keyboard Shortcuts**: Pages supports keyboard shortcuts using `Alt+Shift+key` (e.g. `Alt+Shift+C` for calendar, `Alt+Shift+H` for home, `Alt+Shift+S` for student toolkit). Press `Alt+Shift+?` to see all shortcuts. These use a non-conflicting modifier so browser defaults (copy, save, print, etc.) are unaffected.
+- **Dynamic Landing Page**: Has a dynamic home page with video of the orchestra, a schedule, and brief but helpful information.
+- **Join the Orchestra**: An application page that streamlines the application process to a form, filled out with necessary information and makes the application process easier for those who manage it. 
+- **Admin Features**: Allows for an admin to accept new members of the orchestra, add new member cards, talk with users, all from a dashboard within the website.
+- **And a variety of new games!**
 
 ### Contributions
 
-- **Notable Contributions**: Highlights significant contributions to the project, including theme development, search and tagging functionality, GitHub API integration, and the incorporation of GitHub Projects into GitHub pages. Contributors such as Tirth Thakker, Mirza Beg, and Toby Ledder have played crucial roles in these developments.
-
-- **Blog Contributions**:  Often students contribute articles and blogs to this project.  Their names are typically listed in the front matter of their contributing post.
+- All features were created by the team Wi-Fighters, consisting of Hope Fune, Kailyn Sanford, Meryl Chen, and Laya Balaji. The base of the website came from John Mortensen and Open Coding Society, but they have not expanded on the page beyond the template.
 
 ---
 
